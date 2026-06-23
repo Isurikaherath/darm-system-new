@@ -17,7 +17,9 @@ import { Route as AuthenticatedRetrievalsRouteImport } from './routes/_authentic
 import { Route as AuthenticatedDocumentsRouteImport } from './routes/_authenticated/documents'
 import { Route as AuthenticatedDisposalRouteImport } from './routes/_authenticated/disposal'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedCostsRouteImport } from './routes/_authenticated/costs'
 import { Route as AuthenticatedCartsRouteImport } from './routes/_authenticated/carts'
+import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedCartsNewRouteImport } from './routes/_authenticated/carts.new'
 import { Route as AuthenticatedCartsCartIdRouteImport } from './routes/_authenticated/carts.$cartId'
 
@@ -60,9 +62,19 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedCostsRoute = AuthenticatedCostsRouteImport.update({
+  id: '/costs',
+  path: '/costs',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedCartsRoute = AuthenticatedCartsRouteImport.update({
   id: '/carts',
   path: '/carts',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedCartsNewRoute = AuthenticatedCartsNewRouteImport.update({
@@ -80,7 +92,9 @@ const AuthenticatedCartsCartIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/admin': typeof AuthenticatedAdminRoute
   '/carts': typeof AuthenticatedCartsRouteWithChildren
+  '/costs': typeof AuthenticatedCostsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/disposal': typeof AuthenticatedDisposalRoute
   '/documents': typeof AuthenticatedDocumentsRoute
@@ -92,7 +106,9 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/admin': typeof AuthenticatedAdminRoute
   '/carts': typeof AuthenticatedCartsRouteWithChildren
+  '/costs': typeof AuthenticatedCostsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/disposal': typeof AuthenticatedDisposalRoute
   '/documents': typeof AuthenticatedDocumentsRoute
@@ -106,7 +122,9 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/carts': typeof AuthenticatedCartsRouteWithChildren
+  '/_authenticated/costs': typeof AuthenticatedCostsRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/disposal': typeof AuthenticatedDisposalRoute
   '/_authenticated/documents': typeof AuthenticatedDocumentsRoute
@@ -120,7 +138,9 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/admin'
     | '/carts'
+    | '/costs'
     | '/dashboard'
     | '/disposal'
     | '/documents'
@@ -132,7 +152,9 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/admin'
     | '/carts'
+    | '/costs'
     | '/dashboard'
     | '/disposal'
     | '/documents'
@@ -145,7 +167,9 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/admin'
     | '/_authenticated/carts'
+    | '/_authenticated/costs'
     | '/_authenticated/dashboard'
     | '/_authenticated/disposal'
     | '/_authenticated/documents'
@@ -219,11 +243,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/costs': {
+      id: '/_authenticated/costs'
+      path: '/costs'
+      fullPath: '/costs'
+      preLoaderRoute: typeof AuthenticatedCostsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/carts': {
       id: '/_authenticated/carts'
       path: '/carts'
       fullPath: '/carts'
       preLoaderRoute: typeof AuthenticatedCartsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/carts/new': {
@@ -257,7 +295,9 @@ const AuthenticatedCartsRouteWithChildren =
   AuthenticatedCartsRoute._addFileChildren(AuthenticatedCartsRouteChildren)
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedCartsRoute: typeof AuthenticatedCartsRouteWithChildren
+  AuthenticatedCostsRoute: typeof AuthenticatedCostsRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedDisposalRoute: typeof AuthenticatedDisposalRoute
   AuthenticatedDocumentsRoute: typeof AuthenticatedDocumentsRoute
@@ -266,7 +306,9 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedCartsRoute: AuthenticatedCartsRouteWithChildren,
+  AuthenticatedCostsRoute: AuthenticatedCostsRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedDisposalRoute: AuthenticatedDisposalRoute,
   AuthenticatedDocumentsRoute: AuthenticatedDocumentsRoute,
