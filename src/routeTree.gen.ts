@@ -9,38 +9,226 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedSearchRouteImport } from './routes/_authenticated/search'
+import { Route as AuthenticatedRetrievalsRouteImport } from './routes/_authenticated/retrievals'
+import { Route as AuthenticatedDocumentsRouteImport } from './routes/_authenticated/documents'
+import { Route as AuthenticatedDisposalRouteImport } from './routes/_authenticated/disposal'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedCostsRouteImport } from './routes/_authenticated/costs'
+import { Route as AuthenticatedCartsRouteImport } from './routes/_authenticated/carts'
+import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedCartsNewRouteImport } from './routes/_authenticated/carts.new'
+import { Route as AuthenticatedCartsCartIdRouteImport } from './routes/_authenticated/carts.$cartId'
+import { Route as ApiPublicHooksStorageNotificationRouteImport } from './routes/api/public/hooks/storage-notification'
+import { Route as ApiPublicHooksDisposalAlertsRouteImport } from './routes/api/public/hooks/disposal-alerts'
 
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedSearchRoute = AuthenticatedSearchRouteImport.update({
+  id: '/search',
+  path: '/search',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedRetrievalsRoute = AuthenticatedRetrievalsRouteImport.update({
+  id: '/retrievals',
+  path: '/retrievals',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedDocumentsRoute = AuthenticatedDocumentsRouteImport.update({
+  id: '/documents',
+  path: '/documents',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedDisposalRoute = AuthenticatedDisposalRouteImport.update({
+  id: '/disposal',
+  path: '/disposal',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedCostsRoute = AuthenticatedCostsRouteImport.update({
+  id: '/costs',
+  path: '/costs',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedCartsRoute = AuthenticatedCartsRouteImport.update({
+  id: '/carts',
+  path: '/carts',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedCartsNewRoute = AuthenticatedCartsNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => AuthenticatedCartsRoute,
+} as any)
+const AuthenticatedCartsCartIdRoute =
+  AuthenticatedCartsCartIdRouteImport.update({
+    id: '/$cartId',
+    path: '/$cartId',
+    getParentRoute: () => AuthenticatedCartsRoute,
+  } as any)
+const ApiPublicHooksStorageNotificationRoute =
+  ApiPublicHooksStorageNotificationRouteImport.update({
+    id: '/api/public/hooks/storage-notification',
+    path: '/api/public/hooks/storage-notification',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksDisposalAlertsRoute =
+  ApiPublicHooksDisposalAlertsRouteImport.update({
+    id: '/api/public/hooks/disposal-alerts',
+    path: '/api/public/hooks/disposal-alerts',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/admin': typeof AuthenticatedAdminRoute
+  '/carts': typeof AuthenticatedCartsRouteWithChildren
+  '/costs': typeof AuthenticatedCostsRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/disposal': typeof AuthenticatedDisposalRoute
+  '/documents': typeof AuthenticatedDocumentsRoute
+  '/retrievals': typeof AuthenticatedRetrievalsRoute
+  '/search': typeof AuthenticatedSearchRoute
+  '/carts/$cartId': typeof AuthenticatedCartsCartIdRoute
+  '/carts/new': typeof AuthenticatedCartsNewRoute
+  '/api/public/hooks/disposal-alerts': typeof ApiPublicHooksDisposalAlertsRoute
+  '/api/public/hooks/storage-notification': typeof ApiPublicHooksStorageNotificationRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/admin': typeof AuthenticatedAdminRoute
+  '/carts': typeof AuthenticatedCartsRouteWithChildren
+  '/costs': typeof AuthenticatedCostsRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/disposal': typeof AuthenticatedDisposalRoute
+  '/documents': typeof AuthenticatedDocumentsRoute
+  '/retrievals': typeof AuthenticatedRetrievalsRoute
+  '/search': typeof AuthenticatedSearchRoute
+  '/carts/$cartId': typeof AuthenticatedCartsCartIdRoute
+  '/carts/new': typeof AuthenticatedCartsNewRoute
+  '/api/public/hooks/disposal-alerts': typeof ApiPublicHooksDisposalAlertsRoute
+  '/api/public/hooks/storage-notification': typeof ApiPublicHooksStorageNotificationRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/carts': typeof AuthenticatedCartsRouteWithChildren
+  '/_authenticated/costs': typeof AuthenticatedCostsRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/disposal': typeof AuthenticatedDisposalRoute
+  '/_authenticated/documents': typeof AuthenticatedDocumentsRoute
+  '/_authenticated/retrievals': typeof AuthenticatedRetrievalsRoute
+  '/_authenticated/search': typeof AuthenticatedSearchRoute
+  '/_authenticated/carts/$cartId': typeof AuthenticatedCartsCartIdRoute
+  '/_authenticated/carts/new': typeof AuthenticatedCartsNewRoute
+  '/api/public/hooks/disposal-alerts': typeof ApiPublicHooksDisposalAlertsRoute
+  '/api/public/hooks/storage-notification': typeof ApiPublicHooksStorageNotificationRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/admin'
+    | '/carts'
+    | '/costs'
+    | '/dashboard'
+    | '/disposal'
+    | '/documents'
+    | '/retrievals'
+    | '/search'
+    | '/carts/$cartId'
+    | '/carts/new'
+    | '/api/public/hooks/disposal-alerts'
+    | '/api/public/hooks/storage-notification'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/auth'
+    | '/admin'
+    | '/carts'
+    | '/costs'
+    | '/dashboard'
+    | '/disposal'
+    | '/documents'
+    | '/retrievals'
+    | '/search'
+    | '/carts/$cartId'
+    | '/carts/new'
+    | '/api/public/hooks/disposal-alerts'
+    | '/api/public/hooks/storage-notification'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/auth'
+    | '/_authenticated/admin'
+    | '/_authenticated/carts'
+    | '/_authenticated/costs'
+    | '/_authenticated/dashboard'
+    | '/_authenticated/disposal'
+    | '/_authenticated/documents'
+    | '/_authenticated/retrievals'
+    | '/_authenticated/search'
+    | '/_authenticated/carts/$cartId'
+    | '/_authenticated/carts/new'
+    | '/api/public/hooks/disposal-alerts'
+    | '/api/public/hooks/storage-notification'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
+  ApiPublicHooksDisposalAlertsRoute: typeof ApiPublicHooksDisposalAlertsRoute
+  ApiPublicHooksStorageNotificationRoute: typeof ApiPublicHooksStorageNotificationRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +236,139 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/search': {
+      id: '/_authenticated/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof AuthenticatedSearchRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/retrievals': {
+      id: '/_authenticated/retrievals'
+      path: '/retrievals'
+      fullPath: '/retrievals'
+      preLoaderRoute: typeof AuthenticatedRetrievalsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/documents': {
+      id: '/_authenticated/documents'
+      path: '/documents'
+      fullPath: '/documents'
+      preLoaderRoute: typeof AuthenticatedDocumentsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/disposal': {
+      id: '/_authenticated/disposal'
+      path: '/disposal'
+      fullPath: '/disposal'
+      preLoaderRoute: typeof AuthenticatedDisposalRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/costs': {
+      id: '/_authenticated/costs'
+      path: '/costs'
+      fullPath: '/costs'
+      preLoaderRoute: typeof AuthenticatedCostsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/carts': {
+      id: '/_authenticated/carts'
+      path: '/carts'
+      fullPath: '/carts'
+      preLoaderRoute: typeof AuthenticatedCartsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/carts/new': {
+      id: '/_authenticated/carts/new'
+      path: '/new'
+      fullPath: '/carts/new'
+      preLoaderRoute: typeof AuthenticatedCartsNewRouteImport
+      parentRoute: typeof AuthenticatedCartsRoute
+    }
+    '/_authenticated/carts/$cartId': {
+      id: '/_authenticated/carts/$cartId'
+      path: '/$cartId'
+      fullPath: '/carts/$cartId'
+      preLoaderRoute: typeof AuthenticatedCartsCartIdRouteImport
+      parentRoute: typeof AuthenticatedCartsRoute
+    }
+    '/api/public/hooks/storage-notification': {
+      id: '/api/public/hooks/storage-notification'
+      path: '/api/public/hooks/storage-notification'
+      fullPath: '/api/public/hooks/storage-notification'
+      preLoaderRoute: typeof ApiPublicHooksStorageNotificationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/disposal-alerts': {
+      id: '/api/public/hooks/disposal-alerts'
+      path: '/api/public/hooks/disposal-alerts'
+      fullPath: '/api/public/hooks/disposal-alerts'
+      preLoaderRoute: typeof ApiPublicHooksDisposalAlertsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
+interface AuthenticatedCartsRouteChildren {
+  AuthenticatedCartsCartIdRoute: typeof AuthenticatedCartsCartIdRoute
+  AuthenticatedCartsNewRoute: typeof AuthenticatedCartsNewRoute
+}
+
+const AuthenticatedCartsRouteChildren: AuthenticatedCartsRouteChildren = {
+  AuthenticatedCartsCartIdRoute: AuthenticatedCartsCartIdRoute,
+  AuthenticatedCartsNewRoute: AuthenticatedCartsNewRoute,
+}
+
+const AuthenticatedCartsRouteWithChildren =
+  AuthenticatedCartsRoute._addFileChildren(AuthenticatedCartsRouteChildren)
+
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedCartsRoute: typeof AuthenticatedCartsRouteWithChildren
+  AuthenticatedCostsRoute: typeof AuthenticatedCostsRoute
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedDisposalRoute: typeof AuthenticatedDisposalRoute
+  AuthenticatedDocumentsRoute: typeof AuthenticatedDocumentsRoute
+  AuthenticatedRetrievalsRoute: typeof AuthenticatedRetrievalsRoute
+  AuthenticatedSearchRoute: typeof AuthenticatedSearchRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedCartsRoute: AuthenticatedCartsRouteWithChildren,
+  AuthenticatedCostsRoute: AuthenticatedCostsRoute,
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedDisposalRoute: AuthenticatedDisposalRoute,
+  AuthenticatedDocumentsRoute: AuthenticatedDocumentsRoute,
+  AuthenticatedRetrievalsRoute: AuthenticatedRetrievalsRoute,
+  AuthenticatedSearchRoute: AuthenticatedSearchRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
+  ApiPublicHooksDisposalAlertsRoute: ApiPublicHooksDisposalAlertsRoute,
+  ApiPublicHooksStorageNotificationRoute:
+    ApiPublicHooksStorageNotificationRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
