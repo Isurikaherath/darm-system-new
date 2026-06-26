@@ -24,8 +24,8 @@ function DocsList() {
   const { data: user } = useCurrentUser();
   const qc = useQueryClient();
   const [search, setSearch] = useState("");
-  const [open, setOpen] = useState(false);
-  const [selectedDoc, setSelectedDoc] = useState<any>(null);
+  const [registerOpen, setRegisterOpen] = useState(false);
+  const [detailDoc, setDetailDoc] = useState<any>(null);
 
 
   const { data } = useQuery({
@@ -58,7 +58,7 @@ function DocsList() {
           <h1 className="text-2xl font-bold text-slate-900">Documents</h1>
           <p className="text-sm text-slate-500">All documents you have access to.</p>
         </div>
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={registerOpen} onOpenChange={setRegisterOpen}>
           <DialogTrigger asChild>
             <Button disabled={!user?.profile.is_active}>
               <Plus className="w-4 h-4 mr-2" /> Register document
@@ -66,7 +66,7 @@ function DocsList() {
           </DialogTrigger>
           <RegisterDocDialog
             onDone={() => {
-              setOpen(false);
+              setRegisterOpen(false);
               qc.invalidateQueries({ queryKey: ["documents"] });
             }}
           />
@@ -118,7 +118,7 @@ function DocsList() {
                   <td className="px-4 py-3 text-slate-500">{d.file_number ?? "—"}</td>
                   <td className="px-4 py-3 text-slate-500">{d.file_name ?? "—"}</td>
                   <td className="px-4 py-3 text-right">
-                    <Button size="sm" variant="outline" onClick={() => { setSelectedDoc(d); setOpen(true); }}>
+                    <Button size="sm" variant="outline" onClick={() => setDetailDoc(d)}>
                       <Eye className="w-4 h-4 mr-1" /> View
                     </Button>
                   </td>
@@ -137,15 +137,11 @@ function DocsList() {
 
       {/* Document Detail Dialog */}
       <DocumentDetailDialog
-        document={selectedDoc}
-        open={open}
-        onOpenChange={(v) => {
-          setOpen(v);
-          if (!v) setSelectedDoc(null);
-        }}
+        document={detailDoc}
+        open={!!detailDoc}
+        onOpenChange={(v) => { if (!v) setDetailDoc(null); }}
         onDone={() => {
-          setOpen(false);
-          setSelectedDoc(null);
+          setDetailDoc(null);
           qc.invalidateQueries({ queryKey: ["documents"] });
         }}
       />
