@@ -82,7 +82,7 @@ function CartDetail() {
   const isAdmin = user.roles.includes("super_admin");
   const isOwnerDept = cart.department_id === user.profile.department_id;
   const canEditDocs = isOwnerDept && EDITABLE_STATUSES.includes(cart.status);
-  const isAtCapacity = (docsQ.data?.length ?? 0) >= 60;
+  const _isAtCapacity = (docsQ.data?.length ?? 0) >= 60;
 
   return (
     <div>
