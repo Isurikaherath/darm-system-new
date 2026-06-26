@@ -33,7 +33,7 @@ function DocsList() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("documents")
-        .select("*, carts(cart_number, status), departments(name)")
+        .select("*, carts(id, cart_number, status), departments(name)")
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data;
