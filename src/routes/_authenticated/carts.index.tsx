@@ -44,10 +44,10 @@ function CartsList() {
           <thead className="bg-slate-50 text-slate-600 text-xs uppercase">
             <tr>
               <th className="text-left px-4 py-3">Cart #</th>
-              <th className="text-left px-4 py-3">Department</th>
+              {/* <th className="text-left px-4 py-3">Department</th> */}
               <th className="text-left px-4 py-3">Status</th>
-              <th className="text-left px-4 py-3">Retention</th>
-              <th className="text-left px-4 py-3">Disposal date</th>
+              {/* <th className="text-left px-4 py-3">Retention</th> */}
+              {/* <th className="text-left px-4 py-3">Disposal date</th> */}
               <th className="text-left px-4 py-3"></th>
             </tr>
           </thead>
@@ -55,10 +55,10 @@ function CartsList() {
             {carts?.length ? carts.map((c: any) => (
               <tr key={c.id}>
                 <td className="px-4 py-3 font-medium text-slate-900">{c.cart_number}</td>
-                <td className="px-4 py-3">{c.departments?.name ?? "—"}</td>
+                {/* <td className="px-4 py-3">{c.departments?.name ?? "—"}</td> */}
                 <td className="px-4 py-3"><StatusBadge status={c.status} /></td>
-                <td className="px-4 py-3">{c.retention_days} days</td>
-                <td className="px-4 py-3">{c.disposal_date ?? "—"}</td>
+                {/* <td className="px-4 py-3">{c.retention_days} days</td> */}
+                {/* <td className="px-4 py-3">{c.disposal_date ?? "—"}</td> */}
                 <td className="px-4 py-3 text-right">
                   <Link to="/carts/$cartId" params={{ cartId: c.id }} className="text-slate-900 font-medium hover:underline">
                     Open →
