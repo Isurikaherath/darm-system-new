@@ -59,18 +59,20 @@ function DocsList() {
           <p className="text-sm text-slate-500">All documents you have access to.</p>
         </div>
         <Dialog open={registerOpen} onOpenChange={setRegisterOpen}>
-          <DialogTrigger asChild>
-            <Button disabled={!user?.profile.is_active}>
-              <Plus className="w-4 h-4 mr-2" /> Register document
-            </Button>
-          </DialogTrigger>
-          <RegisterDocDialog
-            onDone={() => {
-              setRegisterOpen(false);
-              qc.invalidateQueries({ queryKey: ["documents"] });
-            }}
-          />
-        </Dialog>
+          <Dialog open={registerOpen} onOpenChange={setRegisterOpen}>
+            <DialogTrigger asChild>
+              <Button disabled={!user?.profile.is_active}>
+                <Plus className="w-4 h-4 mr-2" /> Register document
+              </Button>
+            </DialogTrigger>
+            <RegisterDocDialog
+              onDone={() => {
+                setRegisterOpen(false);
+                setRegisterOpen(false);
+                qc.invalidateQueries({ queryKey: ["documents"] });
+              }}
+            />
+          </Dialog>
       </header>
 
       <Card className="p-4 mb-4">

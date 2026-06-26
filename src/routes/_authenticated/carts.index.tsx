@@ -97,7 +97,7 @@ function CartsList() {
           <thead className="bg-slate-50 text-slate-600 text-xs uppercase">
             <tr>
               <th className="text-left px-4 py-3">Cart Number</th>
-              <th className="text-left px-4 py-3">Department</th>
+              {/* <th className="text-left px-4 py-3">Department</th> */}
               <th className="text-left px-4 py-3">Documents</th>
               <th className="text-left px-4 py-3">Capacity</th>
               <th className="text-left px-4 py-3">Status</th>
@@ -112,7 +112,7 @@ function CartsList() {
               return (
                 <tr key={c.id}>
                   <td className="px-4 py-3 font-medium text-slate-900">{c.cart_number}</td>
-                  <td className="px-4 py-3 text-slate-600">{c.departments?.name ?? "—"}</td>
+                  {/* <td className="px-4 py-3 text-slate-600">{c.departments?.name ?? "—"}</td> */}
                   <td className="px-4 py-3 text-slate-600">{count}/60</td>
                   <td className="px-4 py-3 text-slate-600">{pct}%</td>
                   <td className="px-4 py-3"><StatusBadge status={c.status} /></td>
