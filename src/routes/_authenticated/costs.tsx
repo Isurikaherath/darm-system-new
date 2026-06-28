@@ -127,6 +127,7 @@ function NewPOForm({ onCreated, userId }: { onCreated: () => void; userId: strin
   const [periodStart, setPeriodStart] = useState("");
   const [periodEnd, setPeriodEnd] = useState("");
   const [description, setDescription] = useState("");
+  const [file, setFile] = useState<File | null>(null);
 
   const { data: departments } = useQuery({
     queryKey: ["departments"],
@@ -136,12 +137,23 @@ function NewPOForm({ onCreated, userId }: { onCreated: () => void; userId: strin
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      let attachment_url: string | null = null;
+      let attachment_name: string | null = null;
+      if (file) {
+        const path = `${userId}/${Date.now()}-${file.name}`;
+        const { error: upErr } = await supabase.storage
+          .from("po-attachments").upload(path, file, { upsert: false });
+        if (upErr) throw upErr;
+        attachment_url = path;
+        attachment_name = file.name;
+      }
       // Insert PO
       const { data: po, error } = await supabase.from("purchase_orders").insert({
         po_number: poNumber, po_type: type, amount,
         department_id: type === "transport" ? null : (deptId || null),
         period_start: periodStart || null, period_end: periodEnd || null,
         description: description || null, created_by: userId,
+        attachment_url, attachment_name,
       }).select().single();
       if (error) throw error;
 
