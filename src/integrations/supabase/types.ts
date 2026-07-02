@@ -309,6 +309,24 @@ export type Database = {
           },
         ]
       }
+      job_titles: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           body: string | null
@@ -372,6 +390,7 @@ export type Database = {
           full_name: string | null
           id: string
           is_active: boolean
+          job_title: string | null
           updated_at: string
         }
         Insert: {
@@ -381,6 +400,7 @@ export type Database = {
           full_name?: string | null
           id: string
           is_active?: boolean
+          job_title?: string | null
           updated_at?: string
         }
         Update: {
@@ -390,6 +410,7 @@ export type Database = {
           full_name?: string | null
           id?: string
           is_active?: boolean
+          job_title?: string | null
           updated_at?: string
         }
         Relationships: [
