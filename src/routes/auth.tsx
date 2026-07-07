@@ -28,27 +28,27 @@ function AuthPage() {
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-      try {
-        if (mode === "signup") {
-          if (password !== confirmPassword) {
-            throw new Error("Passwords do not match");
-          }
-          const { error } = await supabase.auth.signUp({
-            email,
-            password,
-            options: {
-              emailRedirectTo: window.location.origin,
-              data: { full_name: fullName, employee_id: employeeId, department, role },
-            },
-          });
-          if (error) throw error;
-          toast.success("Account created. Awaiting admin activation if you are not the first user.");
-          navigate({ to: "/dashboard" });
-        } else {
-          const { error } = await supabase.auth.signInWithPassword({ email, password });
-          if (error) throw error;
-          navigate({ to: "/dashboard" });
+    try {
+      if (mode === "signup") {
+        if (password !== confirmPassword) {
+          throw new Error("Passwords do not match");
         }
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: window.location.origin,
+            data: { full_name: fullName, employee_id: employeeId, department, role },
+          },
+        });
+        if (error) throw error;
+        toast.success("Account created. Awaiting admin activation if you are not the first user.");
+        navigate({ to: "/dashboard" });
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        navigate({ to: "/dashboard" });
+      }
     } catch (err: any) {
       toast.error(err.message ?? "Authentication failed");
     } finally {
@@ -62,44 +62,44 @@ function AuthPage() {
         <div className="mb-6 text-center">
           <h1 className="text-2xl font-bold text-slate-900">DARMS</h1>
           <p className="text-sm text-slate-500 mt-1">
-            Physical Document Lifecycle Management
+            Document Archival & Retrieval Management System
           </p>
         </div>
         <form onSubmit={submit} className="space-y-4">
-            {mode === "signup" && (
-              <>
-                <div>
-                  <Label htmlFor="name">Full name</Label>
-                  <Input id="name" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
-                </div>
-                <div>
-                  <Label htmlFor="employeeId">Employee ID</Label>
-                  <Input id="employeeId" value={employeeId} onChange={(e) => setEmployeeId(e.target.value)} required />
-                </div>
-                <div>
-                  <Label htmlFor="department">Department</Label>
-                  <select id="department" value={department} onChange={(e) => setDepartment(e.target.value)} className="w-full border rounded p-2">
-                    <option value="">Select department</option>
-                    <option value="HR">HR</option>
-                    <option value="Engineering">Engineering</option>
-                    <option value="Sales">Sales</option>
-                  </select>
-                </div>
-                <div>
-                  <Label htmlFor="role">Role</Label>
-                  <select id="role" value={role} onChange={(e) => setRole(e.target.value)} className="w-full border rounded p-2">
-                    <option value="">Select role</option>
-                    <option value="Admin">Admin</option>
-                    <option value="User">User</option>
-                    <option value="Manager">Manager</option>
-                  </select>
-                </div>
-                <div>
-                  <Label htmlFor="confirmPassword">Confirm Password</Label>
-                  <Input id="confirmPassword" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required minLength={6} />
-                </div>
-              </>
-            )}
+          {mode === "signup" && (
+            <>
+              <div>
+                <Label htmlFor="name">Full name</Label>
+                <Input id="name" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
+              </div>
+              <div>
+                <Label htmlFor="employeeId">Employee ID</Label>
+                <Input id="employeeId" value={employeeId} onChange={(e) => setEmployeeId(e.target.value)} required />
+              </div>
+              <div>
+                <Label htmlFor="department">Department</Label>
+                <select id="department" value={department} onChange={(e) => setDepartment(e.target.value)} className="w-full border rounded p-2">
+                  <option value="">Select department</option>
+                  <option value="HR">HR</option>
+                  <option value="Engineering">Engineering</option>
+                  <option value="Sales">Sales</option>
+                </select>
+              </div>
+              <div>
+                <Label htmlFor="role">Role</Label>
+                <select id="role" value={role} onChange={(e) => setRole(e.target.value)} className="w-full border rounded p-2">
+                  <option value="">Select role</option>
+                  <option value="Admin">Admin</option>
+                  <option value="User">User</option>
+                  <option value="Manager">Manager</option>
+                </select>
+              </div>
+              <div>
+                <Label htmlFor="confirmPassword">Confirm Password</Label>
+                <Input id="confirmPassword" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required minLength={6} />
+              </div>
+            </>
+          )}
           <div>
             <Label htmlFor="email">Email</Label>
             <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
