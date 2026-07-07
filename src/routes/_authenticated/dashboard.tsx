@@ -275,7 +275,8 @@ function Dashboard() {
         )}
       </div>
 
-      {(user.roles.includes("dept_head") || isSuper || isOfficeSvc) && <ApprovalsPanel user={user} />}
+
+
 
 
 
