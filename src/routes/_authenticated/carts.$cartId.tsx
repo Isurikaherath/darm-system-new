@@ -117,6 +117,7 @@ function CartDetail() {
                       <tr key={d.id}>
                         <td className="py-2 font-mono text-xs">{d.document_number}</td>
                         <td>{d.document_name}</td>
+                        <td className="text-slate-500">{d.retention_period != null ? `${d.retention_period} yrs` : "—"}</td>
                         <td className="text-slate-500">{d.file_number ?? "—"} {d.file_name ? `· ${d.file_name}` : ""}</td>
                         <td className="text-right">
                           {canEditDocs && (
