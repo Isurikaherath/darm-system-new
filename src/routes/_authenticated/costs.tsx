@@ -245,6 +245,7 @@ function NewPOForm({
   const [periodEnd, setPeriodEnd] = useState("");
   const [description, setDescription] = useState("");
   const [file, setFile] = useState<File | null>(null);
+  const mirrorFileFn = useServerFn(mirrorStorageFile);
 
   const { data: departments } = useQuery({
     queryKey: ["departments"],
