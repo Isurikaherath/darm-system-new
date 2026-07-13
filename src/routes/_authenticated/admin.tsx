@@ -137,6 +137,45 @@ function Admin() {
     qc.invalidateQueries({ queryKey: ["app-settings"] });
   };
 
+  const saveSmtpSettings = async () => {
+    const email = senderEmail.trim();
+    if (!email || !/^\S+@\S+\.\S+$/.test(email)) return toast.error("Enter a valid sender email");
+    const port = smtpPort ? Number(smtpPort) : null;
+    if (smtpPort && (Number.isNaN(port) || port! < 1 || port! > 65535)) return toast.error("Invalid SMTP port");
+    const { error } = await supabase
+      .from("app_settings")
+      .update({
+        sender_email: email,
+        sender_name: senderName.trim() || "DARMS",
+        smtp_host: smtpHost.trim() || null,
+        smtp_port: port,
+        smtp_username: smtpUsername.trim() || null,
+        smtp_password: smtpPassword || null,
+        smtp_secure: smtpSecure,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", true);
+    if (error) return toast.error(error.message);
+    toast.success("Email sender settings saved");
+    qc.invalidateQueries({ queryKey: ["app-settings"] });
+  };
+
+  const runTestEmail = async () => {
+    const to = testTo.trim() || senderEmail.trim();
+    if (!to || !/^\S+@\S+\.\S+$/.test(to)) return toast.error("Enter a recipient email");
+    setSendingTest(true);
+    try {
+      await testEmailFn({ data: { to } });
+      toast.success(`Test email sent to ${to}`);
+    } catch (e: any) {
+      toast.error(e?.message ?? "Failed to send test email");
+    } finally {
+      setSendingTest(false);
+    }
+  };
+
+
+
   return (
     <div>
       <header className="mb-6">
