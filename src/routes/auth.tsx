@@ -138,10 +138,6 @@ function AuthPage() {
                   </div>
                 </>
               )}
-              <div>
-                <Label htmlFor="confirmPassword">Confirm Password</Label>
-                <PasswordInput id="confirmPassword" value={confirmPassword} onChange={setConfirmPassword} minLength={6} />
-              </div>
             </>
           )}
           <div>
@@ -152,6 +148,12 @@ function AuthPage() {
             <Label htmlFor="password">Password</Label>
             <PasswordInput id="password" value={password} onChange={setPassword} minLength={6} />
           </div>
+          {mode === "signup" && (
+            <div>
+              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <PasswordInput id="confirmPassword" value={confirmPassword} onChange={setConfirmPassword} minLength={6} />
+            </div>
+          )}
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? "Please wait…" : mode === "signin" ? "Sign in" : "Create account"}
           </Button>
