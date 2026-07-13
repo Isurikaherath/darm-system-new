@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { Trash2 } from "lucide-react";
+import { Trash2, Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,9 @@ import { Label } from "@/components/ui/label";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { toast } from "sonner";
 import { ROLE_LABELS, type AppRole } from "@/lib/types";
+import { useServerFn } from "@tanstack/react-start";
+import { sendTestEmail } from "@/lib/email-admin.functions";
+
 
 export const Route = createFileRoute("/_authenticated/admin")({
   component: Admin,
