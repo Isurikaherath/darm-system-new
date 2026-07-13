@@ -118,8 +118,6 @@ export const resyncMirror = createServerFn({ method: "POST" })
     const schemaResult = await autoDeploySchema(cfg);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const results: Record<string, { rows: number; ok: boolean; error?: string }> = {};
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const results: Record<string, { rows: number; ok: boolean; error?: string }> = {};
 
     for (const table of MIRRORED_TABLES) {
       const { data, error } = await supabaseAdmin.from(table).select("*");
