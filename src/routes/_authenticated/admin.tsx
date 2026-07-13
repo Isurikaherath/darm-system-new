@@ -190,6 +190,47 @@ function Admin() {
     }
   };
 
+  const saveMirrorConfig = async () => {
+    if (mirrorUrl && !/^https?:\/\//.test(mirrorUrl)) return toast.error("Mirror URL must start with https://");
+    const { error } = await supabase
+      .from("app_settings")
+      .update({
+        mirror_url: mirrorUrl.trim() || null,
+        mirror_service_key: mirrorKey.trim() || null,
+        mirror_enabled: mirrorEnabled,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", true);
+    if (error) return toast.error(error.message);
+    toast.success("Backup mirror settings saved");
+    qc.invalidateQueries({ queryKey: ["app-settings"] });
+  };
+
+  const runMirrorAction = async (kind: "test" | "sync" | "retry") => {
+    setMirrorBusy(kind);
+    try {
+      if (kind === "test") {
+        await testMirrorFn();
+        toast.success("Connection OK — external DB reachable");
+      } else if (kind === "sync") {
+        const r: any = await resyncMirrorFn();
+        const failed = Object.entries(r.results).filter(([, v]: any) => !v.ok);
+        if (failed.length) toast.error(`Sync finished with ${failed.length} table(s) failing — see mirror_failures`);
+        else toast.success("Full resync complete");
+      } else {
+        const r: any = await retryMirrorFn();
+        toast.success(`Retried ${r.attempted}, resolved ${r.resolved}`);
+        qc.invalidateQueries({ queryKey: ["mirror-failures"] });
+      }
+    } catch (e: any) {
+      toast.error(e?.message ?? "Mirror action failed");
+    } finally {
+      setMirrorBusy("");
+    }
+  };
+
+
+
 
 
   return (
