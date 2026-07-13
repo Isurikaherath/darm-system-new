@@ -62,10 +62,31 @@ function Admin() {
   const [newDept, setNewDept] = useState("");
   const [newJob, setNewJob] = useState("");
   const [providerEmail, setProviderEmail] = useState("");
+  const [senderEmail, setSenderEmail] = useState("");
+  const [senderName, setSenderName] = useState("DARMS");
+  const [smtpHost, setSmtpHost] = useState("");
+  const [smtpPort, setSmtpPort] = useState<string>("587");
+  const [smtpUsername, setSmtpUsername] = useState("");
+  const [smtpPassword, setSmtpPassword] = useState("");
+  const [smtpSecure, setSmtpSecure] = useState(true);
+  const [testTo, setTestTo] = useState("");
+  const [sendingTest, setSendingTest] = useState(false);
+  const testEmailFn = useServerFn(sendTestEmail);
 
   useEffect(() => {
-    if (settingsQ.data) setProviderEmail((settingsQ.data as any).provider_email ?? "");
+    if (settingsQ.data) {
+      const s: any = settingsQ.data;
+      setProviderEmail(s.provider_email ?? "");
+      setSenderEmail(s.sender_email ?? "");
+      setSenderName(s.sender_name ?? "DARMS");
+      setSmtpHost(s.smtp_host ?? "");
+      setSmtpPort(s.smtp_port ? String(s.smtp_port) : "587");
+      setSmtpUsername(s.smtp_username ?? "");
+      setSmtpPassword(s.smtp_password ?? "");
+      setSmtpSecure(s.smtp_secure ?? true);
+    }
   }, [settingsQ.data]);
+
 
   if (!isAdmin) {
     return <div className="text-slate-500">Only Super Admins can access this page.</div>;
