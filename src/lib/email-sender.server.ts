@@ -43,7 +43,7 @@ function pickFrom(settings: any) {
 
 export async function sendSystemEmail({ to, subject, html, attachments }: SendArgs) {
   const settings = await loadEmailSettings();
-  const from = buildFrom(settings);
+  const { from, replyTo } = pickFrom(settings);
 
   // Path 1: Custom SMTP via Resend's Nodemailer-compatible SMTP is not reachable
   // from workers directly. If the customer supplied SMTP creds, we forward them
