@@ -19,6 +19,7 @@ export type Database = {
           created_at: string
           id: boolean
           last_daily_sent_at: string | null
+          mirror_db_url: string | null
           mirror_enabled: boolean
           mirror_service_key: string | null
           mirror_url: string | null
@@ -36,6 +37,7 @@ export type Database = {
           created_at?: string
           id?: boolean
           last_daily_sent_at?: string | null
+          mirror_db_url?: string | null
           mirror_enabled?: boolean
           mirror_service_key?: string | null
           mirror_url?: string | null
@@ -53,6 +55,7 @@ export type Database = {
           created_at?: string
           id?: boolean
           last_daily_sent_at?: string | null
+          mirror_db_url?: string | null
           mirror_enabled?: boolean
           mirror_service_key?: string | null
           mirror_url?: string | null
