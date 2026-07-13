@@ -69,12 +69,39 @@ function Admin() {
   const [sendingTest, setSendingTest] = useState(false);
   const testEmailFn = useServerFn(sendTestEmail);
 
+  const [mirrorUrl, setMirrorUrl] = useState("");
+  const [mirrorKey, setMirrorKey] = useState("");
+  const [mirrorEnabled, setMirrorEnabled] = useState(false);
+  const [showKey, setShowKey] = useState(false);
+  const [mirrorBusy, setMirrorBusy] = useState<"" | "test" | "sync" | "retry">("");
+  const testMirrorFn = useServerFn(testMirror);
+  const resyncMirrorFn = useServerFn(resyncMirror);
+  const retryMirrorFn = useServerFn(retryMirrorFailures);
+
+  const failuresQ = useQuery({
+    queryKey: ["mirror-failures"],
+    enabled: isAdmin,
+    refetchInterval: 15_000,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("mirror_failures")
+        .select("*")
+        .is("resolved_at", null)
+        .order("created_at", { ascending: false })
+        .limit(20);
+      return data ?? [];
+    },
+  });
+
   useEffect(() => {
     if (settingsQ.data) {
       const s: any = settingsQ.data;
       setProviderEmail(s.provider_email ?? "");
       setSenderEmail(s.sender_email ?? "");
       setSenderName(s.sender_name ?? "DARMS");
+      setMirrorUrl(s.mirror_url ?? "");
+      setMirrorKey(s.mirror_service_key ?? "");
+      setMirrorEnabled(!!s.mirror_enabled);
     }
   }, [settingsQ.data]);
 
