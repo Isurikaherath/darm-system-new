@@ -291,6 +291,7 @@ function NewPOForm({
         if (upErr) throw upErr;
         attachment_url = path;
         attachment_name = file.name;
+        mirrorFileFn({ data: { bucket: "po-attachments", path } }).catch(() => {});
       }
       const { data: po, error } = await supabase.from("purchase_orders").insert({
         po_number: poNumber,
