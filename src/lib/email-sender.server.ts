@@ -58,7 +58,7 @@ export async function sendSystemEmail({ to, subject, html, attachments }: SendAr
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-    body: JSON.stringify({ from, to, subject, html, ...(attachments ? { attachments } : {}) }),
+    body: JSON.stringify({ from, to, subject, html, ...(replyTo ? { reply_to: replyTo } : {}), ...(attachments ? { attachments } : {}) }),
   });
   const body = await res.text();
   if (!res.ok) throw new Error(`Resend ${res.status}: ${body}`);
