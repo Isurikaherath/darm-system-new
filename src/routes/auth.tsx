@@ -54,12 +54,20 @@ function AuthPage() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  const hasUsersQ = useQuery({
+    queryKey: ["has-any-user"],
+    queryFn: async () => (await supabase.rpc("has_any_user")).data ?? false,
+  });
+  const isFirstUser = hasUsersQ.data === false;
+
   const depsQ = useQuery({
     queryKey: ["public-departments"],
+    enabled: !isFirstUser,
     queryFn: async () => (await supabase.from("departments").select("id,name").order("name")).data ?? [],
   });
   const jobsQ = useQuery({
     queryKey: ["public-job-titles"],
+    enabled: !isFirstUser,
     queryFn: async () => (await supabase.from("job_titles").select("id,name").order("name")).data ?? [],
   });
 
