@@ -152,7 +152,7 @@ export const resyncMirror = createServerFn({ method: "POST" })
         ? { rows: sent, ok: false, error: err }
         : { rows: sent, ok: true };
     }
-    return { results };
+    return { results, schemaDeployed: schemaResult.deployed };
   });
 
 // --- Retry failed rows ---
