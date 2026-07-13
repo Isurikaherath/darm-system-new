@@ -104,6 +104,7 @@ function Admin() {
       setSenderName(s.sender_name ?? "DARMS");
       setMirrorUrl(s.mirror_url ?? "");
       setMirrorKey(s.mirror_service_key ?? "");
+      setMirrorDbUrl(s.mirror_db_url ?? "");
       setMirrorEnabled(!!s.mirror_enabled);
     }
   }, [settingsQ.data]);
