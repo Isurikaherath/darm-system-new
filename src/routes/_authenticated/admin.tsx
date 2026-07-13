@@ -196,11 +196,13 @@ function Admin() {
 
   const saveMirrorConfig = async () => {
     if (mirrorUrl && !/^https?:\/\//.test(mirrorUrl)) return toast.error("Mirror URL must start with https://");
+    if (mirrorDbUrl && !/^postgres(ql)?:\/\//.test(mirrorDbUrl)) return toast.error("DB URL must start with postgres:// or postgresql://");
     const { error } = await supabase
       .from("app_settings")
       .update({
         mirror_url: mirrorUrl.trim() || null,
         mirror_service_key: mirrorKey.trim() || null,
+        mirror_db_url: mirrorDbUrl.trim() || null,
         mirror_enabled: mirrorEnabled,
         updated_at: new Date().toISOString(),
       })
@@ -210,17 +212,21 @@ function Admin() {
     qc.invalidateQueries({ queryKey: ["app-settings"] });
   };
 
-  const runMirrorAction = async (kind: "test" | "sync" | "retry") => {
+  const runMirrorAction = async (kind: "test" | "sync" | "retry" | "deploy") => {
     setMirrorBusy(kind);
     try {
-      if (kind === "test") {
+      if (kind === "deploy") {
+        await deploySchemaFn();
+        toast.success("Schema deployed to external DB");
+      } else if (kind === "test") {
         await testMirrorFn();
         toast.success("Connection OK — external DB reachable");
       } else if (kind === "sync") {
         const r: any = await resyncMirrorFn();
         const failed = Object.entries(r.results).filter(([, v]: any) => !v.ok);
-        if (failed.length) toast.error(`Sync finished with ${failed.length} table(s) failing — see mirror_failures`);
-        else toast.success("Full resync complete");
+        const prefix = r.schemaDeployed ? "Schema deployed · " : "";
+        if (failed.length) toast.error(`${prefix}Sync finished with ${failed.length} table(s) failing — see mirror_failures`);
+        else toast.success(`${prefix}Full resync complete`);
       } else {
         const r: any = await retryMirrorFn();
         toast.success(`Retried ${r.attempted}, resolved ${r.resolved}`);
