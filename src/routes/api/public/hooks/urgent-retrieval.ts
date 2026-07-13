@@ -53,25 +53,12 @@ async function buildPdf(cart: any, docs: any[]): Promise<string> {
   return btoa(binary);
 }
 
+import { sendSystemEmail } from "@/lib/email-sender.server";
+
 async function sendEmailWithPdf(to: string, subject: string, html: string, filename: string, pdfB64: string) {
-  const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.EMAIL_FROM ?? "DARMS <onboarding@resend.dev>";
-  if (!apiKey) {
-    console.warn("[urgent-retrieval] RESEND_API_KEY not set — skipping delivery");
-    return { skipped: true };
-  }
-  const res = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-    body: JSON.stringify({
-      from, to, subject, html,
-      attachments: [{ filename, content: pdfB64 }],
-    }),
-  });
-  const body = await res.text();
-  if (!res.ok) throw new Error(`Resend ${res.status}: ${body}`);
-  return { id: JSON.parse(body).id };
+  return sendSystemEmail({ to, subject, html, attachments: [{ filename, content: pdfB64 }] });
 }
+
 
 export const Route = createFileRoute("/api/public/hooks/urgent-retrieval")({
   server: {
