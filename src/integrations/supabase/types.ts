@@ -581,6 +581,7 @@ export type Database = {
     Functions: {
       current_user_department: { Args: never; Returns: string }
       current_user_is_active: { Args: never; Returns: boolean }
+      has_any_user: { Args: never; Returns: boolean }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

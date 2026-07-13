@@ -54,12 +54,20 @@ function AuthPage() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  const hasUsersQ = useQuery({
+    queryKey: ["has-any-user"],
+    queryFn: async () => (await supabase.rpc("has_any_user")).data ?? false,
+  });
+  const isFirstUser = hasUsersQ.data === false;
+
   const depsQ = useQuery({
     queryKey: ["public-departments"],
+    enabled: !isFirstUser,
     queryFn: async () => (await supabase.from("departments").select("id,name").order("name")).data ?? [],
   });
   const jobsQ = useQuery({
     queryKey: ["public-job-titles"],
+    enabled: !isFirstUser,
     queryFn: async () => (await supabase.from("job_titles").select("id,name").order("name")).data ?? [],
   });
 
@@ -112,20 +120,24 @@ function AuthPage() {
                 <Label htmlFor="employeeId">Employee ID</Label>
                 <Input id="employeeId" value={employeeId} onChange={(e) => setEmployeeId(e.target.value)} required />
               </div>
-              <div>
-                <Label htmlFor="department">Department</Label>
-                <select id="department" value={department} onChange={(e) => setDepartment(e.target.value)} required className="w-full border rounded p-2">
-                  <option value="">Select department</option>
-                  {depsQ.data?.map((d: any) => <option key={d.id} value={d.id}>{d.name}</option>)}
-                </select>
-              </div>
-              <div>
-                <Label htmlFor="role">Role</Label>
-                <select id="role" value={jobTitle} onChange={(e) => setJobTitle(e.target.value)} required className="w-full border rounded p-2">
-                  <option value="">Select role</option>
-                  {jobsQ.data?.map((j: any) => <option key={j.id} value={j.name}>{j.name}</option>)}
-                </select>
-              </div>
+              {!isFirstUser && (
+                <>
+                  <div>
+                    <Label htmlFor="department">Department</Label>
+                    <select id="department" value={department} onChange={(e) => setDepartment(e.target.value)} required className="w-full border rounded p-2">
+                      <option value="">Select department</option>
+                      {depsQ.data?.map((d: any) => <option key={d.id} value={d.id}>{d.name}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <Label htmlFor="role">Role</Label>
+                    <select id="role" value={jobTitle} onChange={(e) => setJobTitle(e.target.value)} required className="w-full border rounded p-2">
+                      <option value="">Select role</option>
+                      {jobsQ.data?.map((j: any) => <option key={j.id} value={j.name}>{j.name}</option>)}
+                    </select>
+                  </div>
+                </>
+              )}
               <div>
                 <Label htmlFor="confirmPassword">Confirm Password</Label>
                 <PasswordInput id="confirmPassword" value={confirmPassword} onChange={setConfirmPassword} minLength={6} />
