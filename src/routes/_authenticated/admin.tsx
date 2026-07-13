@@ -292,6 +292,62 @@ function Admin() {
         <p className="text-xs text-slate-500 mt-3">Emails are sent through the connected Gmail account, not Resend.</p>
       </Card>
 
+      <Card className="p-6 mb-6">
+        <div className="flex items-center gap-2 mb-1">
+          <Database className="w-4 h-4 text-slate-700" />
+          <h2 className="font-semibold text-slate-900">Backup mirror (external Supabase)</h2>
+        </div>
+        <p className="text-xs text-slate-500 mb-4">
+          Every write in this system is mirrored to an external Supabase project as a read-only backup.
+          Toggle off to pause mirroring. Rows that fail are logged below and can be retried.
+          Run the schema script <code className="px-1 bg-slate-100 rounded">/external-schema.sql</code> once on the external project.
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl">
+          <div>
+            <Label className="text-xs">External project URL</Label>
+            <Input value={mirrorUrl} onChange={(e) => setMirrorUrl(e.target.value)} placeholder="https://xxxx.supabase.co" />
+          </div>
+          <div>
+            <Label className="text-xs">Service role key (secret)</Label>
+            <div className="flex gap-1">
+              <Input type={showKey ? "text" : "password"} value={mirrorKey} onChange={(e) => setMirrorKey(e.target.value)} placeholder="sb_secret_… or eyJ…" />
+              <Button type="button" variant="outline" size="sm" onClick={() => setShowKey((v) => !v)}>{showKey ? "Hide" : "Show"}</Button>
+            </div>
+            <p className="text-[11px] text-slate-500 mt-1">Never a publishable/anon key — must be service_role.</p>
+          </div>
+        </div>
+        <label className="inline-flex items-center gap-2 mt-4 text-sm">
+          <input type="checkbox" checked={mirrorEnabled} onChange={(e) => setMirrorEnabled(e.target.checked)} />
+          Enable real-time mirroring
+        </label>
+        <div className="flex flex-wrap gap-2 mt-4">
+          <Button onClick={saveMirrorConfig}>Save mirror settings</Button>
+          <Button variant="outline" onClick={() => runMirrorAction("test")} disabled={!!mirrorBusy}>
+            <PlugZap className="w-4 h-4 mr-1" /> {mirrorBusy === "test" ? "Testing…" : "Test connection"}
+          </Button>
+          <Button variant="outline" onClick={() => runMirrorAction("sync")} disabled={!!mirrorBusy}>
+            <RefreshCw className="w-4 h-4 mr-1" /> {mirrorBusy === "sync" ? "Syncing…" : "Full resync"}
+          </Button>
+          <Button variant="outline" onClick={() => runMirrorAction("retry")} disabled={!!mirrorBusy || !(failuresQ.data?.length)}>
+            {mirrorBusy === "retry" ? "Retrying…" : `Retry failures (${failuresQ.data?.length ?? 0})`}
+          </Button>
+        </div>
+        {!!failuresQ.data?.length && (
+          <div className="mt-4 border border-red-200 rounded bg-red-50 p-3 text-xs">
+            <div className="font-semibold text-red-800 mb-1">Recent failures</div>
+            <ul className="space-y-1 text-red-700 max-h-40 overflow-auto">
+              {failuresQ.data.slice(0, 10).map((f: any) => (
+                <li key={f.id}>
+                  <span className="font-mono">{f.table_name}</span> · {f.op} · {new Date(f.created_at).toLocaleTimeString()} — {f.error?.slice(0, 120)}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </Card>
+
+
+
 
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
