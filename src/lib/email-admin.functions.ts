@@ -18,8 +18,8 @@ export const sendTestEmail = createServerFn({ method: "POST" })
         <h2>DARMS — Test Email</h2>
         <p>This test message was sent from your DARMS admin panel.</p>
         <p><strong>Sender:</strong> ${settings?.sender_name ?? "DARMS"} &lt;${settings?.sender_email ?? "(not set)"}&gt;</p>
-        <p><strong>SMTP host:</strong> ${settings?.smtp_host ?? "(not configured — using Resend)"}</p>
-        <p>If you received this, sender configuration is working.</p>
+        <p><strong>Delivery:</strong> Connected Gmail account</p>
+        <p>If you received this, Gmail sending is working.</p>
       </div>`;
     const result = await sendSystemEmail({
       to: data.to,
