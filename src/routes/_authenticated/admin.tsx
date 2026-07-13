@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { Trash2 } from "lucide-react";
+import { Trash2, Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,9 @@ import { Label } from "@/components/ui/label";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { toast } from "sonner";
 import { ROLE_LABELS, type AppRole } from "@/lib/types";
+import { useServerFn } from "@tanstack/react-start";
+import { sendTestEmail } from "@/lib/email-admin.functions";
+
 
 export const Route = createFileRoute("/_authenticated/admin")({
   component: Admin,
@@ -59,10 +62,31 @@ function Admin() {
   const [newDept, setNewDept] = useState("");
   const [newJob, setNewJob] = useState("");
   const [providerEmail, setProviderEmail] = useState("");
+  const [senderEmail, setSenderEmail] = useState("");
+  const [senderName, setSenderName] = useState("DARMS");
+  const [smtpHost, setSmtpHost] = useState("");
+  const [smtpPort, setSmtpPort] = useState<string>("587");
+  const [smtpUsername, setSmtpUsername] = useState("");
+  const [smtpPassword, setSmtpPassword] = useState("");
+  const [smtpSecure, setSmtpSecure] = useState(true);
+  const [testTo, setTestTo] = useState("");
+  const [sendingTest, setSendingTest] = useState(false);
+  const testEmailFn = useServerFn(sendTestEmail);
 
   useEffect(() => {
-    if (settingsQ.data) setProviderEmail((settingsQ.data as any).provider_email ?? "");
+    if (settingsQ.data) {
+      const s: any = settingsQ.data;
+      setProviderEmail(s.provider_email ?? "");
+      setSenderEmail(s.sender_email ?? "");
+      setSenderName(s.sender_name ?? "DARMS");
+      setSmtpHost(s.smtp_host ?? "");
+      setSmtpPort(s.smtp_port ? String(s.smtp_port) : "587");
+      setSmtpUsername(s.smtp_username ?? "");
+      setSmtpPassword(s.smtp_password ?? "");
+      setSmtpSecure(s.smtp_secure ?? true);
+    }
   }, [settingsQ.data]);
+
 
   if (!isAdmin) {
     return <div className="text-slate-500">Only Super Admins can access this page.</div>;
@@ -113,6 +137,45 @@ function Admin() {
     qc.invalidateQueries({ queryKey: ["app-settings"] });
   };
 
+  const saveSmtpSettings = async () => {
+    const email = senderEmail.trim();
+    if (!email || !/^\S+@\S+\.\S+$/.test(email)) return toast.error("Enter a valid sender email");
+    const port = smtpPort ? Number(smtpPort) : null;
+    if (smtpPort && (Number.isNaN(port) || port! < 1 || port! > 65535)) return toast.error("Invalid SMTP port");
+    const { error } = await supabase
+      .from("app_settings")
+      .update({
+        sender_email: email,
+        sender_name: senderName.trim() || "DARMS",
+        smtp_host: smtpHost.trim() || null,
+        smtp_port: port,
+        smtp_username: smtpUsername.trim() || null,
+        smtp_password: smtpPassword || null,
+        smtp_secure: smtpSecure,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", true);
+    if (error) return toast.error(error.message);
+    toast.success("Email sender settings saved");
+    qc.invalidateQueries({ queryKey: ["app-settings"] });
+  };
+
+  const runTestEmail = async () => {
+    const to = testTo.trim() || senderEmail.trim();
+    if (!to || !/^\S+@\S+\.\S+$/.test(to)) return toast.error("Enter a recipient email");
+    setSendingTest(true);
+    try {
+      await testEmailFn({ data: { to } });
+      toast.success(`Test email sent to ${to}`);
+    } catch (e: any) {
+      toast.error(e?.message ?? "Failed to send test email");
+    } finally {
+      setSendingTest(false);
+    }
+  };
+
+
+
   return (
     <div>
       <header className="mb-6">
@@ -136,6 +199,67 @@ function Admin() {
           </p>
         )}
       </Card>
+
+      <Card className="p-6 mb-6">
+        <h2 className="font-semibold text-slate-900 mb-1">Email sender & SMTP</h2>
+        <p className="text-xs text-slate-500 mb-4">
+          Configure the <strong>From</strong> address used for all system emails (daily digest, urgent retrievals, notifications).
+          Optional SMTP fields let you route outbound mail through your own SMTP server.
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl">
+          <div>
+            <Label className="text-xs">Sender email *</Label>
+            <Input type="email" value={senderEmail} onChange={(e) => setSenderEmail(e.target.value)} placeholder="pasinduthambugala@gmail.com" />
+          </div>
+          <div>
+            <Label className="text-xs">Sender display name</Label>
+            <Input value={senderName} onChange={(e) => setSenderName(e.target.value)} placeholder="DARMS" />
+          </div>
+          <div>
+            <Label className="text-xs">SMTP host</Label>
+            <Input value={smtpHost} onChange={(e) => setSmtpHost(e.target.value)} placeholder="smtp.gmail.com" />
+          </div>
+          <div>
+            <Label className="text-xs">SMTP port</Label>
+            <Input type="number" value={smtpPort} onChange={(e) => setSmtpPort(e.target.value)} placeholder="587" />
+          </div>
+          <div>
+            <Label className="text-xs">SMTP username</Label>
+            <Input value={smtpUsername} onChange={(e) => setSmtpUsername(e.target.value)} placeholder="username or email" />
+          </div>
+          <div>
+            <Label className="text-xs">SMTP password</Label>
+            <Input type="password" value={smtpPassword} onChange={(e) => setSmtpPassword(e.target.value)} placeholder="app password / SMTP key" autoComplete="new-password" />
+          </div>
+          <label className="inline-flex items-center gap-2 text-sm">
+            <input type="checkbox" checked={smtpSecure} onChange={(e) => setSmtpSecure(e.target.checked)} />
+            Use TLS/SSL (recommended)
+          </label>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2 mt-4">
+          <Button onClick={saveSmtpSettings}>Save sender & SMTP</Button>
+          <div className="flex gap-2 items-center ml-0 md:ml-4">
+            <Input
+              type="email"
+              className="max-w-xs"
+              value={testTo}
+              onChange={(e) => setTestTo(e.target.value)}
+              placeholder={senderEmail || "recipient@example.com"}
+            />
+            <Button variant="outline" onClick={runTestEmail} disabled={sendingTest}>
+              <Send className="w-4 h-4 mr-1" /> {sendingTest ? "Sending…" : "Send test email"}
+            </Button>
+          </div>
+        </div>
+        <p className="text-xs text-slate-500 mt-3">
+          Tip: to use Gmail as sender, create an <strong>App password</strong> in your Google Account (2-Step Verification required)
+          and paste it as the SMTP password. Host <code>smtp.gmail.com</code>, port <code>587</code>, TLS on.
+        </p>
+      </Card>
+
+
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         <Card className="p-6">
