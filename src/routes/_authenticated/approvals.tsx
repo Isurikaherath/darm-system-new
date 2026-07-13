@@ -17,6 +17,8 @@ import { toast } from "sonner";
 import { Eye, MessageSquare } from "lucide-react";
 import type { CartStatus } from "@/lib/types";
 import { CartViewDialog } from "./carts.index";
+import { useServerFn } from "@tanstack/react-start";
+import { notifyApprovalDecision } from "@/lib/approval-email.functions";
 
 export const Route = createFileRoute("/_authenticated/approvals")({
   component: ApprovalsPage,
@@ -140,6 +142,19 @@ function PendingTable({
     },
   });
 
+  const notifyFn = useServerFn(notifyApprovalDecision);
+
+  const sendNotify = async (cart: any, decision: "approved" | "rejected", reason?: string) => {
+    const spec = specs.find((s) => s.status === cart.status)!;
+    try {
+      const res: any = await notifyFn({ data: { cartId: cart.id, decision, kind: spec.label, reason } });
+      if (res?.ok) toast.success("Email sent");
+      else toast.message("No email sent (recipient missing)");
+    } catch (e: any) {
+      toast.error(`Email failed: ${e.message ?? e}`);
+    }
+  };
+
   const approve = useMutation({
     mutationFn: async (cart: any) => {
       const spec = specs.find((s) => s.status === cart.status)!;
@@ -151,12 +166,14 @@ function PendingTable({
       await supabase.from("cart_approvals").insert({
         cart_id: cart.id, action: spec.approveAction as any, actor_id: user.userId, comments: null,
       });
+      return cart;
     },
-    onSuccess: () => {
+    onSuccess: (cart) => {
       toast.success("Approved");
       qc.invalidateQueries({ queryKey: ["approvals-pending"] });
       qc.invalidateQueries({ queryKey: ["approvals-history"] });
       qc.invalidateQueries({ queryKey: ["carts-with-counts"] });
+      void sendNotify(cart, "approved");
     },
     onError: (e: any) => toast.error(e.message),
   });
@@ -171,13 +188,15 @@ function PendingTable({
       await supabase.from("cart_approvals").insert({
         cart_id: cart.id, action: spec.rejectAction as any, actor_id: user.userId, comments: reason,
       });
+      return { cart, reason };
     },
-    onSuccess: () => {
+    onSuccess: ({ cart, reason }) => {
       toast.success("Rejected");
       setRejectFor(null); setRejectReason("");
       qc.invalidateQueries({ queryKey: ["approvals-pending"] });
       qc.invalidateQueries({ queryKey: ["approvals-history"] });
       qc.invalidateQueries({ queryKey: ["carts-with-counts"] });
+      void sendNotify(cart, "rejected", reason);
     },
     onError: (e: any) => toast.error(e.message),
   });
