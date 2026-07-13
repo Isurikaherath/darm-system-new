@@ -201,10 +201,9 @@ function Admin() {
       </Card>
 
       <Card className="p-6 mb-6">
-        <h2 className="font-semibold text-slate-900 mb-1">Email sender & SMTP</h2>
+        <h2 className="font-semibold text-slate-900 mb-1">Email sender</h2>
         <p className="text-xs text-slate-500 mb-4">
-          Configure the <strong>From</strong> address used for all system emails (daily digest, urgent retrievals, notifications).
-          Optional SMTP fields let you route outbound mail through your own SMTP server.
+          Configure the Gmail sender used for storage provider emails. Approval emails are sent only for urgent retrieval approvals.
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl">
@@ -216,30 +215,10 @@ function Admin() {
             <Label className="text-xs">Sender display name</Label>
             <Input value={senderName} onChange={(e) => setSenderName(e.target.value)} placeholder="DARMS" />
           </div>
-          <div>
-            <Label className="text-xs">SMTP host</Label>
-            <Input value={smtpHost} onChange={(e) => setSmtpHost(e.target.value)} placeholder="smtp.gmail.com" />
-          </div>
-          <div>
-            <Label className="text-xs">SMTP port</Label>
-            <Input type="number" value={smtpPort} onChange={(e) => setSmtpPort(e.target.value)} placeholder="587" />
-          </div>
-          <div>
-            <Label className="text-xs">SMTP username</Label>
-            <Input value={smtpUsername} onChange={(e) => setSmtpUsername(e.target.value)} placeholder="username or email" />
-          </div>
-          <div>
-            <Label className="text-xs">SMTP password</Label>
-            <Input type="password" value={smtpPassword} onChange={(e) => setSmtpPassword(e.target.value)} placeholder="app password / SMTP key" autoComplete="new-password" />
-          </div>
-          <label className="inline-flex items-center gap-2 text-sm">
-            <input type="checkbox" checked={smtpSecure} onChange={(e) => setSmtpSecure(e.target.checked)} />
-            Use TLS/SSL (recommended)
-          </label>
         </div>
 
         <div className="flex flex-wrap items-center gap-2 mt-4">
-          <Button onClick={saveSmtpSettings}>Save sender & SMTP</Button>
+          <Button onClick={saveSmtpSettings}>Save sender</Button>
           <div className="flex gap-2 items-center ml-0 md:ml-4">
             <Input
               type="email"
@@ -253,10 +232,7 @@ function Admin() {
             </Button>
           </div>
         </div>
-        <p className="text-xs text-slate-500 mt-3">
-          Tip: to use Gmail as sender, create an <strong>App password</strong> in your Google Account (2-Step Verification required)
-          and paste it as the SMTP password. Host <code>smtp.gmail.com</code>, port <code>587</code>, TLS on.
-        </p>
+        <p className="text-xs text-slate-500 mt-3">Emails are sent through the connected Gmail account, not Resend.</p>
       </Card>
 
 
