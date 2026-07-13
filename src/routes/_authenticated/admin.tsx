@@ -310,7 +310,8 @@ function Admin() {
         <p className="text-xs text-slate-500 mb-4">
           Every write in this system is mirrored to an external Supabase project as a read-only backup.
           Toggle off to pause mirroring. Rows that fail are logged below and can be retried.
-          Run the schema script <code className="px-1 bg-slate-100 rounded">/external-schema.sql</code> once on the external project.
+          Add the external project's <strong>Postgres connection URL</strong> below to enable
+          automatic schema deployment before every sync — no manual SQL required.
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl">
           <div>
@@ -325,6 +326,22 @@ function Admin() {
             </div>
             <p className="text-[11px] text-slate-500 mt-1">Never a publishable/anon key — must be service_role.</p>
           </div>
+          <div className="md:col-span-2">
+            <Label className="text-xs">Postgres connection URL (for auto schema deploy)</Label>
+            <div className="flex gap-1">
+              <Input
+                type={showDbUrl ? "text" : "password"}
+                value={mirrorDbUrl}
+                onChange={(e) => setMirrorDbUrl(e.target.value)}
+                placeholder="postgresql://postgres.<ref>:<password>@aws-0-<region>.pooler.supabase.com:6543/postgres"
+              />
+              <Button type="button" variant="outline" size="sm" onClick={() => setShowDbUrl((v) => !v)}>{showDbUrl ? "Hide" : "Show"}</Button>
+            </div>
+            <p className="text-[11px] text-slate-500 mt-1">
+              Use the external project's <em>Session pooler</em> URI (Settings → Database → Connection string). Required for the automatic
+              schema deployment that runs before every Full resync.
+            </p>
+          </div>
         </div>
         <label className="inline-flex items-center gap-2 mt-4 text-sm">
           <input type="checkbox" checked={mirrorEnabled} onChange={(e) => setMirrorEnabled(e.target.checked)} />
@@ -332,11 +349,14 @@ function Admin() {
         </label>
         <div className="flex flex-wrap gap-2 mt-4">
           <Button onClick={saveMirrorConfig}>Save mirror settings</Button>
+          <Button variant="outline" onClick={() => runMirrorAction("deploy")} disabled={!!mirrorBusy || !mirrorDbUrl}>
+            <Database className="w-4 h-4 mr-1" /> {mirrorBusy === "deploy" ? "Deploying…" : "Deploy schema"}
+          </Button>
           <Button variant="outline" onClick={() => runMirrorAction("test")} disabled={!!mirrorBusy}>
             <PlugZap className="w-4 h-4 mr-1" /> {mirrorBusy === "test" ? "Testing…" : "Test connection"}
           </Button>
           <Button variant="outline" onClick={() => runMirrorAction("sync")} disabled={!!mirrorBusy}>
-            <RefreshCw className="w-4 h-4 mr-1" /> {mirrorBusy === "sync" ? "Syncing…" : "Full resync"}
+            <RefreshCw className="w-4 h-4 mr-1" /> {mirrorBusy === "sync" ? "Syncing…" : "Full resync (auto-deploys schema)"}
           </Button>
           <Button variant="outline" onClick={() => runMirrorAction("retry")} disabled={!!mirrorBusy || !(failuresQ.data?.length)}>
             {mirrorBusy === "retry" ? "Retrying…" : `Retry failures (${failuresQ.data?.length ?? 0})`}
