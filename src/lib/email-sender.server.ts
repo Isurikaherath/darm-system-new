@@ -20,10 +20,25 @@ export async function loadEmailSettings() {
   return (data ?? {}) as any;
 }
 
-function buildFrom(settings: any) {
-  const email = settings?.sender_email || process.env.EMAIL_FROM_ADDRESS || "onboarding@resend.dev";
+const UNVERIFIABLE_DOMAINS = new Set([
+  "gmail.com", "googlemail.com", "yahoo.com", "yahoo.co.uk", "hotmail.com",
+  "outlook.com", "live.com", "icloud.com", "me.com", "aol.com", "proton.me",
+  "protonmail.com", "gmx.com", "mail.com",
+]);
+
+function pickFrom(settings: any) {
+  const configured = (settings?.sender_email || process.env.EMAIL_FROM_ADDRESS || "").trim();
   const name = settings?.sender_name || "DARMS";
-  return `${name} <${email}>`;
+  const domain = configured.split("@")[1]?.toLowerCase();
+  // Resend cannot send *from* free-mail domains — they can't be verified.
+  // Fall back to Resend's test sender and set Reply-To to the configured address.
+  if (!configured || (domain && UNVERIFIABLE_DOMAINS.has(domain))) {
+    return {
+      from: `${name} <onboarding@resend.dev>`,
+      replyTo: configured || undefined,
+    };
+  }
+  return { from: `${name} <${configured}>`, replyTo: undefined };
 }
 
 export async function sendSystemEmail({ to, subject, html, attachments }: SendArgs) {
