@@ -4,22 +4,12 @@
 // Urgent retrievals are handled by a separate immediate trigger.
 import { createFileRoute } from "@tanstack/react-router";
 
+import { sendSystemEmail } from "@/lib/email-sender.server";
+
 async function sendEmail(to: string, subject: string, html: string) {
-  const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.EMAIL_FROM ?? "DARMS <onboarding@resend.dev>";
-  if (!apiKey) {
-    console.warn("[storage-notification] RESEND_API_KEY not set — skipping delivery");
-    return { skipped: true };
-  }
-  const res = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-    body: JSON.stringify({ from, to, subject, html }),
-  });
-  const body = await res.text();
-  if (!res.ok) throw new Error(`Resend ${res.status}: ${body}`);
-  return { id: JSON.parse(body).id };
+  return sendSystemEmail({ to, subject, html });
 }
+
 
 function fmtCartRows(carts: any[]) {
   return carts.map((c) => `
