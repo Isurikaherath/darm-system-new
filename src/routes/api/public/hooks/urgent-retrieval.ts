@@ -2,9 +2,11 @@
 // a cart transitions to retrieval_approved with retrieval_type = 'urgent'.
 // Sends an email with a PDF attachment of the cart + document details.
 import { createFileRoute } from "@tanstack/react-router";
-import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 
 async function buildPdf(cart: any, docs: any[]): Promise<string> {
+  // Keep pdf-lib out of route module initialization. TanStack imports every route
+  // while booting SSR, so optional webhook-only PDF code must load only when used.
+  const { PDFDocument, StandardFonts, rgb } = await import("pdf-lib");
   const pdf = await PDFDocument.create();
   const page = pdf.addPage([595.28, 841.89]); // A4
   const font = await pdf.embedFont(StandardFonts.Helvetica);
