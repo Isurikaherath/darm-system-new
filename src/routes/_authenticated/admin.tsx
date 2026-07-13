@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { Trash2, Send } from "lucide-react";
+import { Trash2, Send, RefreshCw, Database, PlugZap } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { ROLE_LABELS, type AppRole } from "@/lib/types";
 import { useServerFn } from "@tanstack/react-start";
 import { sendTestEmail } from "@/lib/email-admin.functions";
+import { testMirror, resyncMirror, retryMirrorFailures } from "@/lib/mirror.functions";
 
 
 export const Route = createFileRoute("/_authenticated/admin")({
@@ -68,12 +69,39 @@ function Admin() {
   const [sendingTest, setSendingTest] = useState(false);
   const testEmailFn = useServerFn(sendTestEmail);
 
+  const [mirrorUrl, setMirrorUrl] = useState("");
+  const [mirrorKey, setMirrorKey] = useState("");
+  const [mirrorEnabled, setMirrorEnabled] = useState(false);
+  const [showKey, setShowKey] = useState(false);
+  const [mirrorBusy, setMirrorBusy] = useState<"" | "test" | "sync" | "retry">("");
+  const testMirrorFn = useServerFn(testMirror);
+  const resyncMirrorFn = useServerFn(resyncMirror);
+  const retryMirrorFn = useServerFn(retryMirrorFailures);
+
+  const failuresQ = useQuery({
+    queryKey: ["mirror-failures"],
+    enabled: isAdmin,
+    refetchInterval: 15_000,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("mirror_failures")
+        .select("*")
+        .is("resolved_at", null)
+        .order("created_at", { ascending: false })
+        .limit(20);
+      return data ?? [];
+    },
+  });
+
   useEffect(() => {
     if (settingsQ.data) {
       const s: any = settingsQ.data;
       setProviderEmail(s.provider_email ?? "");
       setSenderEmail(s.sender_email ?? "");
       setSenderName(s.sender_name ?? "DARMS");
+      setMirrorUrl(s.mirror_url ?? "");
+      setMirrorKey(s.mirror_service_key ?? "");
+      setMirrorEnabled(!!s.mirror_enabled);
     }
   }, [settingsQ.data]);
 
@@ -162,6 +190,47 @@ function Admin() {
     }
   };
 
+  const saveMirrorConfig = async () => {
+    if (mirrorUrl && !/^https?:\/\//.test(mirrorUrl)) return toast.error("Mirror URL must start with https://");
+    const { error } = await supabase
+      .from("app_settings")
+      .update({
+        mirror_url: mirrorUrl.trim() || null,
+        mirror_service_key: mirrorKey.trim() || null,
+        mirror_enabled: mirrorEnabled,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", true);
+    if (error) return toast.error(error.message);
+    toast.success("Backup mirror settings saved");
+    qc.invalidateQueries({ queryKey: ["app-settings"] });
+  };
+
+  const runMirrorAction = async (kind: "test" | "sync" | "retry") => {
+    setMirrorBusy(kind);
+    try {
+      if (kind === "test") {
+        await testMirrorFn();
+        toast.success("Connection OK — external DB reachable");
+      } else if (kind === "sync") {
+        const r: any = await resyncMirrorFn();
+        const failed = Object.entries(r.results).filter(([, v]: any) => !v.ok);
+        if (failed.length) toast.error(`Sync finished with ${failed.length} table(s) failing — see mirror_failures`);
+        else toast.success("Full resync complete");
+      } else {
+        const r: any = await retryMirrorFn();
+        toast.success(`Retried ${r.attempted}, resolved ${r.resolved}`);
+        qc.invalidateQueries({ queryKey: ["mirror-failures"] });
+      }
+    } catch (e: any) {
+      toast.error(e?.message ?? "Mirror action failed");
+    } finally {
+      setMirrorBusy("");
+    }
+  };
+
+
+
 
 
   return (
@@ -222,6 +291,62 @@ function Admin() {
         </div>
         <p className="text-xs text-slate-500 mt-3">Emails are sent through the connected Gmail account, not Resend.</p>
       </Card>
+
+      <Card className="p-6 mb-6">
+        <div className="flex items-center gap-2 mb-1">
+          <Database className="w-4 h-4 text-slate-700" />
+          <h2 className="font-semibold text-slate-900">Backup mirror (external Supabase)</h2>
+        </div>
+        <p className="text-xs text-slate-500 mb-4">
+          Every write in this system is mirrored to an external Supabase project as a read-only backup.
+          Toggle off to pause mirroring. Rows that fail are logged below and can be retried.
+          Run the schema script <code className="px-1 bg-slate-100 rounded">/external-schema.sql</code> once on the external project.
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl">
+          <div>
+            <Label className="text-xs">External project URL</Label>
+            <Input value={mirrorUrl} onChange={(e) => setMirrorUrl(e.target.value)} placeholder="https://xxxx.supabase.co" />
+          </div>
+          <div>
+            <Label className="text-xs">Service role key (secret)</Label>
+            <div className="flex gap-1">
+              <Input type={showKey ? "text" : "password"} value={mirrorKey} onChange={(e) => setMirrorKey(e.target.value)} placeholder="sb_secret_… or eyJ…" />
+              <Button type="button" variant="outline" size="sm" onClick={() => setShowKey((v) => !v)}>{showKey ? "Hide" : "Show"}</Button>
+            </div>
+            <p className="text-[11px] text-slate-500 mt-1">Never a publishable/anon key — must be service_role.</p>
+          </div>
+        </div>
+        <label className="inline-flex items-center gap-2 mt-4 text-sm">
+          <input type="checkbox" checked={mirrorEnabled} onChange={(e) => setMirrorEnabled(e.target.checked)} />
+          Enable real-time mirroring
+        </label>
+        <div className="flex flex-wrap gap-2 mt-4">
+          <Button onClick={saveMirrorConfig}>Save mirror settings</Button>
+          <Button variant="outline" onClick={() => runMirrorAction("test")} disabled={!!mirrorBusy}>
+            <PlugZap className="w-4 h-4 mr-1" /> {mirrorBusy === "test" ? "Testing…" : "Test connection"}
+          </Button>
+          <Button variant="outline" onClick={() => runMirrorAction("sync")} disabled={!!mirrorBusy}>
+            <RefreshCw className="w-4 h-4 mr-1" /> {mirrorBusy === "sync" ? "Syncing…" : "Full resync"}
+          </Button>
+          <Button variant="outline" onClick={() => runMirrorAction("retry")} disabled={!!mirrorBusy || !(failuresQ.data?.length)}>
+            {mirrorBusy === "retry" ? "Retrying…" : `Retry failures (${failuresQ.data?.length ?? 0})`}
+          </Button>
+        </div>
+        {!!failuresQ.data?.length && (
+          <div className="mt-4 border border-red-200 rounded bg-red-50 p-3 text-xs">
+            <div className="font-semibold text-red-800 mb-1">Recent failures</div>
+            <ul className="space-y-1 text-red-700 max-h-40 overflow-auto">
+              {failuresQ.data.slice(0, 10).map((f: any) => (
+                <li key={f.id}>
+                  <span className="font-mono">{f.table_name}</span> · {f.op} · {new Date(f.created_at).toLocaleTimeString()} — {f.error?.slice(0, 120)}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </Card>
+
+
 
 
 

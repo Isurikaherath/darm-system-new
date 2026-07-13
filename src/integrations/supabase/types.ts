@@ -19,6 +19,9 @@ export type Database = {
           created_at: string
           id: boolean
           last_daily_sent_at: string | null
+          mirror_enabled: boolean
+          mirror_service_key: string | null
+          mirror_url: string | null
           provider_email: string | null
           sender_email: string | null
           sender_name: string | null
@@ -33,6 +36,9 @@ export type Database = {
           created_at?: string
           id?: boolean
           last_daily_sent_at?: string | null
+          mirror_enabled?: boolean
+          mirror_service_key?: string | null
+          mirror_url?: string | null
           provider_email?: string | null
           sender_email?: string | null
           sender_name?: string | null
@@ -47,6 +53,9 @@ export type Database = {
           created_at?: string
           id?: boolean
           last_daily_sent_at?: string | null
+          mirror_enabled?: boolean
+          mirror_service_key?: string | null
+          mirror_url?: string | null
           provider_email?: string | null
           sender_email?: string | null
           sender_name?: string | null
@@ -372,6 +381,39 @@ export type Database = {
           created_at?: string
           id?: string
           name?: string
+        }
+        Relationships: []
+      }
+      mirror_failures: {
+        Row: {
+          created_at: string
+          error: string | null
+          id: string
+          op: string
+          payload: Json | null
+          resolved_at: string | null
+          row_id: string | null
+          table_name: string
+        }
+        Insert: {
+          created_at?: string
+          error?: string | null
+          id?: string
+          op: string
+          payload?: Json | null
+          resolved_at?: string | null
+          row_id?: string | null
+          table_name: string
+        }
+        Update: {
+          created_at?: string
+          error?: string | null
+          id?: string
+          op?: string
+          payload?: Json | null
+          resolved_at?: string | null
+          row_id?: string | null
+          table_name?: string
         }
         Relationships: []
       }
