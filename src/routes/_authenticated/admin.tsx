@@ -71,12 +71,15 @@ function Admin() {
 
   const [mirrorUrl, setMirrorUrl] = useState("");
   const [mirrorKey, setMirrorKey] = useState("");
+  const [mirrorDbUrl, setMirrorDbUrl] = useState("");
   const [mirrorEnabled, setMirrorEnabled] = useState(false);
   const [showKey, setShowKey] = useState(false);
-  const [mirrorBusy, setMirrorBusy] = useState<"" | "test" | "sync" | "retry">("");
+  const [showDbUrl, setShowDbUrl] = useState(false);
+  const [mirrorBusy, setMirrorBusy] = useState<"" | "test" | "sync" | "retry" | "deploy">("");
   const testMirrorFn = useServerFn(testMirror);
   const resyncMirrorFn = useServerFn(resyncMirror);
   const retryMirrorFn = useServerFn(retryMirrorFailures);
+  const deploySchemaFn = useServerFn(deployMirrorSchema);
 
   const failuresQ = useQuery({
     queryKey: ["mirror-failures"],
