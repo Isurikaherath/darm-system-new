@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import { ROLE_LABELS, type AppRole } from "@/lib/types";
 import { useServerFn } from "@tanstack/react-start";
 import { sendTestEmail } from "@/lib/email-admin.functions";
-import { testMirror, resyncMirror, retryMirrorFailures } from "@/lib/mirror.functions";
+import { testMirror, resyncMirror, retryMirrorFailures, deployMirrorSchema } from "@/lib/mirror.functions";
 
 
 export const Route = createFileRoute("/_authenticated/admin")({
