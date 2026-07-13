@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import { ROLE_LABELS, type AppRole } from "@/lib/types";
 import { useServerFn } from "@tanstack/react-start";
 import { sendTestEmail } from "@/lib/email-admin.functions";
-import { testMirror, resyncMirror, retryMirrorFailures } from "@/lib/mirror.functions";
+import { testMirror, resyncMirror, retryMirrorFailures, deployMirrorSchema } from "@/lib/mirror.functions";
 
 
 export const Route = createFileRoute("/_authenticated/admin")({
@@ -71,12 +71,15 @@ function Admin() {
 
   const [mirrorUrl, setMirrorUrl] = useState("");
   const [mirrorKey, setMirrorKey] = useState("");
+  const [mirrorDbUrl, setMirrorDbUrl] = useState("");
   const [mirrorEnabled, setMirrorEnabled] = useState(false);
   const [showKey, setShowKey] = useState(false);
-  const [mirrorBusy, setMirrorBusy] = useState<"" | "test" | "sync" | "retry">("");
+  const [showDbUrl, setShowDbUrl] = useState(false);
+  const [mirrorBusy, setMirrorBusy] = useState<"" | "test" | "sync" | "retry" | "deploy">("");
   const testMirrorFn = useServerFn(testMirror);
   const resyncMirrorFn = useServerFn(resyncMirror);
   const retryMirrorFn = useServerFn(retryMirrorFailures);
+  const deploySchemaFn = useServerFn(deployMirrorSchema);
 
   const failuresQ = useQuery({
     queryKey: ["mirror-failures"],
@@ -101,6 +104,7 @@ function Admin() {
       setSenderName(s.sender_name ?? "DARMS");
       setMirrorUrl(s.mirror_url ?? "");
       setMirrorKey(s.mirror_service_key ?? "");
+      setMirrorDbUrl(s.mirror_db_url ?? "");
       setMirrorEnabled(!!s.mirror_enabled);
     }
   }, [settingsQ.data]);
@@ -192,11 +196,13 @@ function Admin() {
 
   const saveMirrorConfig = async () => {
     if (mirrorUrl && !/^https?:\/\//.test(mirrorUrl)) return toast.error("Mirror URL must start with https://");
+    if (mirrorDbUrl && !/^postgres(ql)?:\/\//.test(mirrorDbUrl)) return toast.error("DB URL must start with postgres:// or postgresql://");
     const { error } = await supabase
       .from("app_settings")
       .update({
         mirror_url: mirrorUrl.trim() || null,
         mirror_service_key: mirrorKey.trim() || null,
+        mirror_db_url: mirrorDbUrl.trim() || null,
         mirror_enabled: mirrorEnabled,
         updated_at: new Date().toISOString(),
       })
@@ -206,17 +212,21 @@ function Admin() {
     qc.invalidateQueries({ queryKey: ["app-settings"] });
   };
 
-  const runMirrorAction = async (kind: "test" | "sync" | "retry") => {
+  const runMirrorAction = async (kind: "test" | "sync" | "retry" | "deploy") => {
     setMirrorBusy(kind);
     try {
-      if (kind === "test") {
+      if (kind === "deploy") {
+        await deploySchemaFn();
+        toast.success("Schema deployed to external DB");
+      } else if (kind === "test") {
         await testMirrorFn();
         toast.success("Connection OK — external DB reachable");
       } else if (kind === "sync") {
         const r: any = await resyncMirrorFn();
         const failed = Object.entries(r.results).filter(([, v]: any) => !v.ok);
-        if (failed.length) toast.error(`Sync finished with ${failed.length} table(s) failing — see mirror_failures`);
-        else toast.success("Full resync complete");
+        const prefix = r.schemaDeployed ? "Schema deployed · " : "";
+        if (failed.length) toast.error(`${prefix}Sync finished with ${failed.length} table(s) failing — see mirror_failures`);
+        else toast.success(`${prefix}Full resync complete`);
       } else {
         const r: any = await retryMirrorFn();
         toast.success(`Retried ${r.attempted}, resolved ${r.resolved}`);
@@ -300,7 +310,8 @@ function Admin() {
         <p className="text-xs text-slate-500 mb-4">
           Every write in this system is mirrored to an external Supabase project as a read-only backup.
           Toggle off to pause mirroring. Rows that fail are logged below and can be retried.
-          Run the schema script <code className="px-1 bg-slate-100 rounded">/external-schema.sql</code> once on the external project.
+          Add the external project's <strong>Postgres connection URL</strong> below to enable
+          automatic schema deployment before every sync — no manual SQL required.
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl">
           <div>
@@ -315,6 +326,22 @@ function Admin() {
             </div>
             <p className="text-[11px] text-slate-500 mt-1">Never a publishable/anon key — must be service_role.</p>
           </div>
+          <div className="md:col-span-2">
+            <Label className="text-xs">Postgres connection URL (for auto schema deploy)</Label>
+            <div className="flex gap-1">
+              <Input
+                type={showDbUrl ? "text" : "password"}
+                value={mirrorDbUrl}
+                onChange={(e) => setMirrorDbUrl(e.target.value)}
+                placeholder="postgresql://postgres.<ref>:<password>@aws-0-<region>.pooler.supabase.com:6543/postgres"
+              />
+              <Button type="button" variant="outline" size="sm" onClick={() => setShowDbUrl((v) => !v)}>{showDbUrl ? "Hide" : "Show"}</Button>
+            </div>
+            <p className="text-[11px] text-slate-500 mt-1">
+              Use the external project's <em>Session pooler</em> URI (Settings → Database → Connection string). Required for the automatic
+              schema deployment that runs before every Full resync.
+            </p>
+          </div>
         </div>
         <label className="inline-flex items-center gap-2 mt-4 text-sm">
           <input type="checkbox" checked={mirrorEnabled} onChange={(e) => setMirrorEnabled(e.target.checked)} />
@@ -322,11 +349,14 @@ function Admin() {
         </label>
         <div className="flex flex-wrap gap-2 mt-4">
           <Button onClick={saveMirrorConfig}>Save mirror settings</Button>
+          <Button variant="outline" onClick={() => runMirrorAction("deploy")} disabled={!!mirrorBusy || !mirrorDbUrl}>
+            <Database className="w-4 h-4 mr-1" /> {mirrorBusy === "deploy" ? "Deploying…" : "Deploy schema"}
+          </Button>
           <Button variant="outline" onClick={() => runMirrorAction("test")} disabled={!!mirrorBusy}>
             <PlugZap className="w-4 h-4 mr-1" /> {mirrorBusy === "test" ? "Testing…" : "Test connection"}
           </Button>
           <Button variant="outline" onClick={() => runMirrorAction("sync")} disabled={!!mirrorBusy}>
-            <RefreshCw className="w-4 h-4 mr-1" /> {mirrorBusy === "sync" ? "Syncing…" : "Full resync"}
+            <RefreshCw className="w-4 h-4 mr-1" /> {mirrorBusy === "sync" ? "Syncing…" : "Full resync (auto-deploys schema)"}
           </Button>
           <Button variant="outline" onClick={() => runMirrorAction("retry")} disabled={!!mirrorBusy || !(failuresQ.data?.length)}>
             {mirrorBusy === "retry" ? "Retrying…" : `Retry failures (${failuresQ.data?.length ?? 0})`}

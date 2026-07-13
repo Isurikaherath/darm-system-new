@@ -28,7 +28,7 @@ async function requireSuperAdmin(supabase: any, userId: string) {
 async function loadMirrorConfig(supabase: any) {
   const { data, error } = await supabase
     .from("app_settings")
-    .select("mirror_enabled, mirror_url, mirror_service_key")
+    .select("mirror_enabled, mirror_url, mirror_service_key, mirror_db_url")
     .eq("id", true)
     .maybeSingle();
   if (error) throw new Error(error.message);
@@ -39,7 +39,24 @@ async function loadMirrorConfig(supabase: any) {
     url: (data.mirror_url as string).replace(/\/$/, ""),
     key: data.mirror_service_key as string,
     enabled: !!data.mirror_enabled,
+    dbUrl: (data.mirror_db_url as string | null) ?? null,
   };
+}
+
+async function autoDeploySchema(cfg: { dbUrl: string | null; url: string; key: string }) {
+  if (!cfg.dbUrl) return { deployed: false, reason: "no_db_url" as const };
+  const { runMirrorSchemaSql } = await import("./mirror-schema.server");
+  await runMirrorSchemaSql(cfg.dbUrl);
+  // Ask PostgREST to reload its schema cache so freshly created tables are visible.
+  try {
+    await fetch(`${cfg.url}/rest/v1/rpc/pgrst_watch`, {
+      method: "POST",
+      headers: mirrorHeaders(cfg.key),
+    });
+  } catch {
+    // best effort
+  }
+  return { deployed: true as const };
 }
 
 function mirrorHeaders(key: string, extra: Record<string, string> = {}) {
@@ -67,12 +84,38 @@ export const testMirror = createServerFn({ method: "POST" })
     return { ok: true, status: res.status };
   });
 
-// --- Full resync: upsert every row of every mirrored table ---
+// --- Deploy the mirror schema to the external DB (direct Postgres connection) ---
+export const deployMirrorSchema = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await requireSuperAdmin(context.supabase, context.userId);
+    const cfg = await loadMirrorConfig(context.supabase);
+    if (!cfg.dbUrl) {
+      throw new Error(
+        "Mirror database connection URL is not configured. Add the external project's Postgres connection string (Session pooler URI) to enable auto-deploy.",
+      );
+    }
+    const { runMirrorSchemaSql } = await import("./mirror-schema.server");
+    await runMirrorSchemaSql(cfg.dbUrl);
+    // Nudge PostgREST to reload its schema cache.
+    try {
+      await fetch(`${cfg.url}/rest/v1/rpc/pgrst_watch`, {
+        method: "POST",
+        headers: mirrorHeaders(cfg.key),
+      });
+    } catch {
+      // best effort
+    }
+    return { ok: true };
+  });
+
+// --- Full resync: auto-deploy schema, then upsert every row of every mirrored table ---
 export const resyncMirror = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await requireSuperAdmin(context.supabase, context.userId);
     const cfg = await loadMirrorConfig(context.supabase);
+    const schemaResult = await autoDeploySchema(cfg);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const results: Record<string, { rows: number; ok: boolean; error?: string }> = {};
 
@@ -109,7 +152,7 @@ export const resyncMirror = createServerFn({ method: "POST" })
         ? { rows: sent, ok: false, error: err }
         : { rows: sent, ok: true };
     }
-    return { results };
+    return { results, schemaDeployed: schemaResult.deployed };
   });
 
 // --- Retry failed rows ---
