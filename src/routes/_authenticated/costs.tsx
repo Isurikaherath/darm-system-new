@@ -20,7 +20,6 @@ export const Route = createFileRoute("/_authenticated/costs")({
 function Costs() {
   const { data: user } = useCurrentUser();
   const qc = useQueryClient();
-  const mirrorFileFn = useServerFn(mirrorStorageFile);
   const isOffice = user?.roles.includes("super_admin") || user?.roles.includes("office_services");
   const deptFilter = !isOffice ? user?.profile.department_id ?? null : null;
 
