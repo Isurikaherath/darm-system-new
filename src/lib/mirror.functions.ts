@@ -28,7 +28,7 @@ async function requireSuperAdmin(supabase: any, userId: string) {
 async function loadMirrorConfig(supabase: any) {
   const { data, error } = await supabase
     .from("app_settings")
-    .select("mirror_enabled, mirror_url, mirror_service_key")
+    .select("mirror_enabled, mirror_url, mirror_service_key, mirror_db_url")
     .eq("id", true)
     .maybeSingle();
   if (error) throw new Error(error.message);
@@ -39,7 +39,24 @@ async function loadMirrorConfig(supabase: any) {
     url: (data.mirror_url as string).replace(/\/$/, ""),
     key: data.mirror_service_key as string,
     enabled: !!data.mirror_enabled,
+    dbUrl: (data.mirror_db_url as string | null) ?? null,
   };
+}
+
+async function autoDeploySchema(cfg: { dbUrl: string | null; url: string; key: string }) {
+  if (!cfg.dbUrl) return { deployed: false, reason: "no_db_url" as const };
+  const { runMirrorSchemaSql } = await import("./mirror-schema.server");
+  await runMirrorSchemaSql(cfg.dbUrl);
+  // Ask PostgREST to reload its schema cache so freshly created tables are visible.
+  try {
+    await fetch(`${cfg.url}/rest/v1/rpc/pgrst_watch`, {
+      method: "POST",
+      headers: mirrorHeaders(cfg.key),
+    });
+  } catch {
+    // best effort
+  }
+  return { deployed: true as const };
 }
 
 function mirrorHeaders(key: string, extra: Record<string, string> = {}) {
