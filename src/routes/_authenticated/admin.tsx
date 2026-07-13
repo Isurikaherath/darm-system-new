@@ -64,11 +64,6 @@ function Admin() {
   const [providerEmail, setProviderEmail] = useState("");
   const [senderEmail, setSenderEmail] = useState("");
   const [senderName, setSenderName] = useState("DARMS");
-  const [smtpHost, setSmtpHost] = useState("");
-  const [smtpPort, setSmtpPort] = useState<string>("587");
-  const [smtpUsername, setSmtpUsername] = useState("");
-  const [smtpPassword, setSmtpPassword] = useState("");
-  const [smtpSecure, setSmtpSecure] = useState(true);
   const [testTo, setTestTo] = useState("");
   const [sendingTest, setSendingTest] = useState(false);
   const testEmailFn = useServerFn(sendTestEmail);
@@ -79,11 +74,6 @@ function Admin() {
       setProviderEmail(s.provider_email ?? "");
       setSenderEmail(s.sender_email ?? "");
       setSenderName(s.sender_name ?? "DARMS");
-      setSmtpHost(s.smtp_host ?? "");
-      setSmtpPort(s.smtp_port ? String(s.smtp_port) : "587");
-      setSmtpUsername(s.smtp_username ?? "");
-      setSmtpPassword(s.smtp_password ?? "");
-      setSmtpSecure(s.smtp_secure ?? true);
     }
   }, [settingsQ.data]);
 
@@ -140,18 +130,16 @@ function Admin() {
   const saveSmtpSettings = async () => {
     const email = senderEmail.trim();
     if (!email || !/^\S+@\S+\.\S+$/.test(email)) return toast.error("Enter a valid sender email");
-    const port = smtpPort ? Number(smtpPort) : null;
-    if (smtpPort && (Number.isNaN(port) || port! < 1 || port! > 65535)) return toast.error("Invalid SMTP port");
     const { error } = await supabase
       .from("app_settings")
       .update({
         sender_email: email,
         sender_name: senderName.trim() || "DARMS",
-        smtp_host: smtpHost.trim() || null,
-        smtp_port: port,
-        smtp_username: smtpUsername.trim() || null,
-        smtp_password: smtpPassword || null,
-        smtp_secure: smtpSecure,
+        smtp_host: null,
+        smtp_port: null,
+        smtp_username: null,
+        smtp_password: null,
+        smtp_secure: true,
         updated_at: new Date().toISOString(),
       })
       .eq("id", true);
