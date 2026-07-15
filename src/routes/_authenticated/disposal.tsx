@@ -10,6 +10,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { DepartmentFilter } from "@/components/DepartmentFilter";
 
 export const Route = createFileRoute("/_authenticated/disposal")({
   component: Disposal,
@@ -18,8 +19,10 @@ export const Route = createFileRoute("/_authenticated/disposal")({
 function Disposal() {
   const [upFrom, setUpFrom] = useState<Date | undefined>();
   const [upTo, setUpTo] = useState<Date | undefined>();
+  const [upDept, setUpDept] = useState<string>("all");
   const [hFrom, setHFrom] = useState<Date | undefined>();
   const [hTo, setHTo] = useState<Date | undefined>();
+  const [hDept, setHDept] = useState<string>("all");
 
   const upcomingQ = useQuery({
     queryKey: ["disposal-upcoming"],
@@ -58,6 +61,7 @@ function Disposal() {
   const upcoming = useMemo(() => {
     const list = upcomingQ.data ?? [];
     return list.filter((c: any) => {
+      if (upDept !== "all" && c.department_id !== upDept) return false;
       const d = c.disposal_date ? new Date(c.disposal_date) : null;
       if (!d) return false;
       if (upFrom && d < upFrom) return false;
@@ -68,17 +72,18 @@ function Disposal() {
       }
       return true;
     });
-  }, [upcomingQ.data, upFrom, upTo]);
+  }, [upcomingQ.data, upFrom, upTo, upDept]);
 
   const history = useMemo(() => {
     const list = historyQ.data ?? [];
     return list.filter((r: any) => {
+      if (hDept !== "all" && r.carts?.department_id !== hDept) return false;
       const d = new Date(r.created_at);
       if (hFrom && d < hFrom) return false;
       if (hTo && d > new Date(hTo.getTime() + 86400000)) return false;
       return true;
     });
-  }, [historyQ.data, hFrom, hTo]);
+  }, [historyQ.data, hFrom, hTo, hDept]);
 
   return (
     <div>
