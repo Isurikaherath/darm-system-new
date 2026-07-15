@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Eye, EyeOff, User, Lock, ArrowRight, FolderClosed, FileText, Cloud, ShieldCheck, Mail } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import bgAsset from "@/assets/darms-bg.jpg.asset.json";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
