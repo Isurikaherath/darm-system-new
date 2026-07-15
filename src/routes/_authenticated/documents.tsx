@@ -29,6 +29,7 @@ function DocsList() {
   const { data: user } = useCurrentUser();
   const qc = useQueryClient();
   const [search, setSearch] = useState("");
+  const [deptFilter, setDeptFilter] = useState<string>("all");
   const [registerOpen, setRegisterOpen] = useState(false);
   const [detailDoc, setDetailDoc] = useState<any>(null);
 
@@ -54,13 +55,14 @@ function DocsList() {
   const filtered = useMemo(() => {
     if (!data) return [];
     const q = search.trim().toLowerCase();
-    if (!q) return data;
-    return data.filter((d: any) =>
-      [d.document_name, d.document_number, d.file_number, d.file_name, d.carts?.cart_number]
+    return data.filter((d: any) => {
+      if (deptFilter !== "all" && d.department_id !== deptFilter) return false;
+      if (!q) return true;
+      return [d.document_name, d.document_number, d.file_number, d.file_name, d.carts?.cart_number]
         .filter(Boolean)
-        .some((v: string) => v.toLowerCase().includes(q)),
-    );
-  }, [data, search]);
+        .some((v: string) => v.toLowerCase().includes(q));
+    });
+  }, [data, search, deptFilter]);
 
   return (
     <div>
@@ -86,8 +88,8 @@ function DocsList() {
           </Dialog>
       </header>
 
-      <Card className="p-4 mb-4">
-        <div className="relative">
+      <Card className="p-4 mb-4 flex flex-col lg:flex-row gap-3 lg:items-center">
+        <div className="relative flex-1">
           <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
           <Input
             value={search}
@@ -96,6 +98,7 @@ function DocsList() {
             className="pl-9"
           />
         </div>
+        <DepartmentFilter value={deptFilter} onChange={setDeptFilter} />
       </Card>
 
       <Card className="overflow-hidden">

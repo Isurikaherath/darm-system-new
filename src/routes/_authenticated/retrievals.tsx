@@ -11,6 +11,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { DepartmentFilter } from "@/components/DepartmentFilter";
 
 export const Route = createFileRoute("/_authenticated/retrievals")({
   component: Retrievals,
@@ -19,6 +20,7 @@ export const Route = createFileRoute("/_authenticated/retrievals")({
 function Retrievals() {
   const [from, setFrom] = useState<Date | undefined>();
   const [to, setTo] = useState<Date | undefined>();
+  const [deptFilter, setDeptFilter] = useState<string>("all");
   const { data } = useQuery({
     queryKey: ["retrievals"],
     queryFn: async () => {
@@ -38,12 +40,13 @@ function Retrievals() {
   const filtered = useMemo(() => {
     if (!data) return [];
     return data.filter((c: any) => {
+      if (deptFilter !== "all" && c.department_id !== deptFilter) return false;
       const d = new Date(c.updated_at ?? c.created_at);
       if (from && d < from) return false;
       if (to && d > new Date(to.getTime() + 86400000)) return false;
       return true;
     });
-  }, [data, from, to]);
+  }, [data, from, to, deptFilter]);
 
   return (
     <div>
@@ -52,7 +55,8 @@ function Retrievals() {
           <h1 className="text-2xl font-bold text-slate-900">Retrievals</h1>
           <p className="text-sm text-slate-500">Open retrieval and return workflow items.</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          <DepartmentFilter value={deptFilter} onChange={setDeptFilter} />
           <DateField label="From" value={from} onChange={setFrom} />
           <DateField label="To" value={to} onChange={setTo} />
           {(from || to) && (
