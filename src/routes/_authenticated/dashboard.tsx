@@ -1,9 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { DepartmentFilter } from "@/components/DepartmentFilter";
 
 import { ROLE_LABELS } from "@/lib/types";
 import { StatusBadge } from "@/components/StatusBadge";
@@ -100,6 +102,7 @@ function Dashboard() {
   const isSuper = !!user?.roles.includes("super_admin");
   const isOfficeSvc = !!user?.roles.includes("office_services");
   const canSeeCosts = isSuper || isOfficeSvc;
+  const [deptFilter, setDeptFilter] = useState<string>("all");
 
   const { data: stats } = useQuery({
     queryKey: ["dashboard-stats-v2", user?.userId],
