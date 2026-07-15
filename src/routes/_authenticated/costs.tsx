@@ -20,7 +20,19 @@ export const Route = createFileRoute("/_authenticated/costs")({
 function Costs() {
   const { data: user } = useCurrentUser();
   const qc = useQueryClient();
-  const isOffice = user?.roles.includes("super_admin") || user?.roles.includes("office_services");
+  const deptNameQ = useQuery({
+    queryKey: ["dept-name", user?.profile.department_id],
+    enabled: !!user?.profile.department_id,
+    queryFn: async () => {
+      const { data } = await supabase.from("departments").select("name").eq("id", user!.profile.department_id!).maybeSingle();
+      return (data?.name ?? "") as string;
+    },
+  });
+  const isOfficeServicesDept = (deptNameQ.data ?? "").trim().toLowerCase() === "office services";
+  const isOffice =
+    user?.roles.includes("super_admin") ||
+    user?.roles.includes("office_services") ||
+    isOfficeServicesDept;
   const deptFilter = !isOffice ? user?.profile.department_id ?? null : null;
 
   const posQ = useQuery({

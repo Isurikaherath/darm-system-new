@@ -655,6 +655,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_office_services_user: { Args: never; Returns: boolean }
     }
     Enums: {
       app_role: "super_admin" | "employee" | "dept_head" | "office_services"
