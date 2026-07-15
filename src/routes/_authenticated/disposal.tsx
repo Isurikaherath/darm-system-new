@@ -102,7 +102,8 @@ function Disposal() {
               {upFrom || upTo ? "Carts within selected date range." : "Carts reaching disposal date within 14 days."}
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            <DepartmentFilter value={upDept} onChange={setUpDept} />
             <DateField label="From" value={upFrom} onChange={setUpFrom} />
             <DateField label="To" value={upTo} onChange={setUpTo} />
             {(upFrom || upTo) && (
@@ -146,7 +147,8 @@ function Disposal() {
               {hFrom || hTo ? "Disposals within selected date range." : "All recorded disposals."}
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            <DepartmentFilter value={hDept} onChange={setHDept} />
             <DateField label="From" value={hFrom} onChange={setHFrom} />
             <DateField label="To" value={hTo} onChange={setHTo} />
             {(hFrom || hTo) && (
