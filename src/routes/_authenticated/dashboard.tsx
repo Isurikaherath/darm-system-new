@@ -168,9 +168,17 @@ function Dashboard() {
 
   if (!user) return null;
 
+  // Apply department filter (super admin only) to derived visualizations
+  const filteredCarts = (stats?.cartsAll ?? []).filter(
+    (c: any) => deptFilter === "all" || c.department_id === deptFilter,
+  );
+  const filteredRecent = (stats?.recentCarts ?? []).filter(
+    (c: any) => deptFilter === "all" || c.department_id === deptFilter,
+  );
+
   // Derive chart data
   const statusCounts: Record<string, number> = {};
-  (stats?.cartsAll ?? []).forEach((c: any) => {
+  filteredCarts.forEach((c: any) => {
     statusCounts[c.status] = (statusCounts[c.status] ?? 0) + 1;
   });
   const statusData = Object.entries(statusCounts).map(([k, v]) => ({
@@ -181,7 +189,7 @@ function Dashboard() {
 
   const deptNameMap = new Map((stats?.depts ?? []).map((d: any) => [d.id, d.name]));
   const deptCounts: Record<string, number> = {};
-  (stats?.cartsAll ?? []).forEach((c: any) => {
+  filteredCarts.forEach((c: any) => {
     const name = deptNameMap.get(c.department_id) ?? "Unassigned";
     deptCounts[name as string] = (deptCounts[name as string] ?? 0) + 1;
   });
