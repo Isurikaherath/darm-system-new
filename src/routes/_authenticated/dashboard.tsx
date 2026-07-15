@@ -245,9 +245,12 @@ function Dashboard() {
             Welcome back, {user.profile.full_name ?? user.email} · {ROLE_LABELS[user.primaryRole]}
           </p>
         </div>
-        <Badge variant="outline" className="text-xs">
-          {new Date().toLocaleDateString(undefined, { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
-        </Badge>
+        <div className="flex items-center gap-2">
+          <DepartmentFilter value={deptFilter} onChange={setDeptFilter} />
+          <Badge variant="outline" className="text-xs">
+            {new Date().toLocaleDateString(undefined, { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
+          </Badge>
+        </div>
       </header>
 
       {!user.profile.is_active && (
@@ -400,10 +403,10 @@ function Dashboard() {
             <Link to="/carts" className="text-xs text-blue-600 hover:underline">View all</Link>
           </div>
           <div className="divide-y">
-            {(stats?.recentCarts ?? []).length === 0 && (
+            {filteredRecent.length === 0 && (
               <div className="text-sm text-slate-400 py-6 text-center">No recent activity</div>
             )}
-            {(stats?.recentCarts ?? []).map((c: any) => (
+            {filteredRecent.map((c: any) => (
               <Link
                 key={c.id}
                 to="/carts/$cartId"
