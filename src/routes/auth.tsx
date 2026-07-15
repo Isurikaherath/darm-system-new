@@ -152,9 +152,12 @@ function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen w-full grid lg:grid-cols-2 bg-white">
+    <div
+      className="min-h-screen w-full grid lg:grid-cols-2 bg-white bg-cover bg-center bg-no-repeat"
+      style={{ backgroundImage: `url(${bgAsset.url})` }}
+    >
       {/* LEFT: illustration */}
-      <div className="relative hidden lg:flex flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-sky-100 via-blue-50 to-slate-100 p-12">
+      <div className="relative hidden lg:flex flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-sky-100/80 via-blue-50/70 to-slate-100/80 backdrop-blur-sm p-12">
         <div className="absolute inset-0 opacity-60 bg-[radial-gradient(circle_at_20%_20%,rgba(59,110,165,0.15),transparent_50%),radial-gradient(circle_at_80%_70%,rgba(125,211,252,0.25),transparent_55%)]" />
         <div className="relative z-10 flex flex-col items-center gap-10">
           <BrandIllustration />
@@ -168,21 +171,22 @@ function AuthPage() {
       </div>
 
       {/* RIGHT: form */}
-      <div className="flex items-center justify-center px-6 py-10 sm:px-12 bg-white">
+      <div className="flex items-center justify-center px-6 py-10 sm:px-12 bg-white/90 backdrop-blur-md">
         <div className="w-full max-w-md">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-sky-50 border border-sky-100 text-sky-700 text-xs font-medium mb-8">
             <FolderClosed className="w-3.5 h-3.5" />
-            FileVault
+            DARMS
           </div>
 
           <h1 className="text-3xl font-bold text-slate-900 tracking-tight">
-            {mode === "signin" ? "Welcome to FileVault" : "Create your account"}
+            {mode === "signin" ? "Welcome to DARMS" : "Create your account"}
           </h1>
           <p className="mt-2 text-sm text-slate-500">
             {mode === "signin"
               ? "Sign in to collaborate with your team and access your secure archive."
               : "Join your team's secure document workspace in seconds."}
           </p>
+
 
           <form onSubmit={submit} className="mt-8 space-y-4">
             {mode === "signup" && (
