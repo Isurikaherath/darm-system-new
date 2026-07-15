@@ -64,13 +64,14 @@ function CartsList() {
     const q = search.trim().toLowerCase();
     return carts.filter((c: any) => {
       if (status !== "all" && c.status !== status) return false;
+      if (deptFilter !== "all" && c.department_id !== deptFilter) return false;
       if (q && !c.cart_number.toLowerCase().includes(q)) return false;
       const updated = new Date(c.updated_at ?? c.created_at);
       if (from && updated < from) return false;
       if (to && updated > new Date(to.getTime() + 86400000)) return false;
       return true;
     });
-  }, [carts, search, status, from, to]);
+  }, [carts, search, status, deptFilter, from, to]);
 
   return (
     <div>
