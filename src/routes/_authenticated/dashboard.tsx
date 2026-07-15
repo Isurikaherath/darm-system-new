@@ -213,7 +213,7 @@ function Dashboard() {
   for (let i = 0; i < 12; i++) {
     const start = now + i * 7 * 86400000;
     const end = start + 7 * 86400000;
-    const count = (stats?.cartsAll ?? []).filter((c: any) => {
+    const count = filteredCarts.filter((c: any) => {
       if (!c.disposal_date || c.status === "disposed") return false;
       const t = new Date(c.disposal_date).getTime();
       return t >= start && t < end;
