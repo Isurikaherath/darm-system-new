@@ -20,6 +20,7 @@ import { Progress } from "@/components/ui/progress";
 import { STATUS_LABELS, type CartStatus } from "@/lib/types";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { DepartmentFilter } from "@/components/DepartmentFilter";
 
 export const Route = createFileRoute("/_authenticated/carts/")({
   component: CartsList,
