@@ -108,15 +108,16 @@ export function AppShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const navigate = useNavigate();
 
-  const themeQ = useQuery({
-    queryKey: ["dept-theme", user?.profile.department_id],
+  const deptQ = useQuery({
+    queryKey: ["dept-info", user?.profile.department_id],
     enabled: !!user?.profile.department_id,
     queryFn: async () => {
-      const { data } = await supabase.from("departments").select("theme_color").eq("id", user!.profile.department_id!).maybeSingle();
-      return (data as any)?.theme_color as string | null;
+      const { data } = await supabase.from("departments").select("name, theme_color").eq("id", user!.profile.department_id!).maybeSingle();
+      return data as { name: string | null; theme_color: string | null } | null;
     },
   });
-  const themeColor = themeQ.data ?? null;
+  const themeColor = deptQ.data?.theme_color ?? null;
+  const isOfficeServicesDept = (deptQ.data?.name ?? "").trim().toLowerCase() === "office services";
 
   const themeVars = useMemo(
     () => (themeColor ? buildThemeVars(themeColor) : {}),
@@ -132,7 +133,15 @@ export function AppShell({ children }: { children: ReactNode }) {
     };
   }, [themeColor]);
 
-  const items = NAV.filter((n) => !n.roles || (user && n.roles.some((r) => user.roles.includes(r))));
+  const items = NAV.filter((n) => {
+    if (!n.roles) return true;
+    if (!user) return false;
+    if (n.roles.some((r) => user.roles.includes(r))) return true;
+    // Office Services department employees also get Cost Management access
+    if (n.to === "/costs" && isOfficeServicesDept) return true;
+    return false;
+  });
+
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
