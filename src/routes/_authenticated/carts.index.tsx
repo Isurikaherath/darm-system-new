@@ -36,6 +36,7 @@ function CartsList() {
   const { data: user } = useCurrentUser();
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<string>("all");
+  const [deptFilter, setDeptFilter] = useState<string>("all");
   const [from, setFrom] = useState<Date | undefined>();
   const [to, setTo] = useState<Date | undefined>();
   const [viewId, setViewId] = useState<string | null>(null);
