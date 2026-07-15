@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import type { POType } from "@/lib/types";
 import { useServerFn } from "@tanstack/react-start";
 import { mirrorStorageFile } from "@/lib/mirror.functions";
+import { DepartmentFilter } from "@/components/DepartmentFilter";
 
 export const Route = createFileRoute("/_authenticated/costs")({
   component: Costs,
@@ -33,7 +34,11 @@ function Costs() {
     user?.roles.includes("super_admin") ||
     user?.roles.includes("office_services") ||
     isOfficeServicesDept;
-  const deptFilter = !isOffice ? user?.profile.department_id ?? null : null;
+  const isSuper = !!user?.roles.includes("super_admin");
+  const [superDept, setSuperDept] = useState<string>("all");
+  const deptFilter = !isOffice
+    ? user?.profile.department_id ?? null
+    : (isSuper && superDept !== "all" ? superDept : null);
 
   const posQ = useQuery({
     queryKey: ["pos", deptFilter],
@@ -97,9 +102,12 @@ function Costs() {
 
   return (
     <div>
-      <header className="mb-6">
-        <h1 className="text-2xl font-bold text-slate-900">Cost Management</h1>
-        <p className="text-sm text-slate-500">Purchase orders, allocations & department cost reporting.</p>
+      <header className="mb-6 flex items-start justify-between flex-wrap gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">Cost Management</h1>
+          <p className="text-sm text-slate-500">Purchase orders, allocations & department cost reporting.</p>
+        </div>
+        <DepartmentFilter value={superDept} onChange={setSuperDept} />
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
