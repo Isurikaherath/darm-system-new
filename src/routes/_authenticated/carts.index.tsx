@@ -109,6 +109,7 @@ function CartsList() {
               Clear
             </Button>
           )}
+          <DepartmentFilter value={deptFilter} onChange={setDeptFilter} />
           <Select value={status} onValueChange={setStatus}>
             <SelectTrigger className="w-56"><SelectValue /></SelectTrigger>
             <SelectContent>
