@@ -1,9 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { DepartmentFilter } from "@/components/DepartmentFilter";
 
 import { ROLE_LABELS } from "@/lib/types";
 import { StatusBadge } from "@/components/StatusBadge";
@@ -100,6 +102,7 @@ function Dashboard() {
   const isSuper = !!user?.roles.includes("super_admin");
   const isOfficeSvc = !!user?.roles.includes("office_services");
   const canSeeCosts = isSuper || isOfficeSvc;
+  const [deptFilter, setDeptFilter] = useState<string>("all");
 
   const { data: stats } = useQuery({
     queryKey: ["dashboard-stats-v2", user?.userId],
@@ -165,9 +168,17 @@ function Dashboard() {
 
   if (!user) return null;
 
+  // Apply department filter (super admin only) to derived visualizations
+  const filteredCarts = (stats?.cartsAll ?? []).filter(
+    (c: any) => deptFilter === "all" || c.department_id === deptFilter,
+  );
+  const filteredRecent = (stats?.recentCarts ?? []).filter(
+    (c: any) => deptFilter === "all" || c.department_id === deptFilter,
+  );
+
   // Derive chart data
   const statusCounts: Record<string, number> = {};
-  (stats?.cartsAll ?? []).forEach((c: any) => {
+  filteredCarts.forEach((c: any) => {
     statusCounts[c.status] = (statusCounts[c.status] ?? 0) + 1;
   });
   const statusData = Object.entries(statusCounts).map(([k, v]) => ({
@@ -178,7 +189,7 @@ function Dashboard() {
 
   const deptNameMap = new Map((stats?.depts ?? []).map((d: any) => [d.id, d.name]));
   const deptCounts: Record<string, number> = {};
-  (stats?.cartsAll ?? []).forEach((c: any) => {
+  filteredCarts.forEach((c: any) => {
     const name = deptNameMap.get(c.department_id) ?? "Unassigned";
     deptCounts[name as string] = (deptCounts[name as string] ?? 0) + 1;
   });
@@ -202,7 +213,7 @@ function Dashboard() {
   for (let i = 0; i < 12; i++) {
     const start = now + i * 7 * 86400000;
     const end = start + 7 * 86400000;
-    const count = (stats?.cartsAll ?? []).filter((c: any) => {
+    const count = filteredCarts.filter((c: any) => {
       if (!c.disposal_date || c.status === "disposed") return false;
       const t = new Date(c.disposal_date).getTime();
       return t >= start && t < end;
@@ -234,9 +245,12 @@ function Dashboard() {
             Welcome back, {user.profile.full_name ?? user.email} · {ROLE_LABELS[user.primaryRole]}
           </p>
         </div>
-        <Badge variant="outline" className="text-xs">
-          {new Date().toLocaleDateString(undefined, { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
-        </Badge>
+        <div className="flex items-center gap-2">
+          <DepartmentFilter value={deptFilter} onChange={setDeptFilter} />
+          <Badge variant="outline" className="text-xs">
+            {new Date().toLocaleDateString(undefined, { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
+          </Badge>
+        </div>
       </header>
 
       {!user.profile.is_active && (
@@ -389,10 +403,10 @@ function Dashboard() {
             <Link to="/carts" className="text-xs text-blue-600 hover:underline">View all</Link>
           </div>
           <div className="divide-y">
-            {(stats?.recentCarts ?? []).length === 0 && (
+            {filteredRecent.length === 0 && (
               <div className="text-sm text-slate-400 py-6 text-center">No recent activity</div>
             )}
-            {(stats?.recentCarts ?? []).map((c: any) => (
+            {filteredRecent.map((c: any) => (
               <Link
                 key={c.id}
                 to="/carts/$cartId"

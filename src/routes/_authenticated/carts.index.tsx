@@ -20,6 +20,7 @@ import { Progress } from "@/components/ui/progress";
 import { STATUS_LABELS, type CartStatus } from "@/lib/types";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { DepartmentFilter } from "@/components/DepartmentFilter";
 
 export const Route = createFileRoute("/_authenticated/carts/")({
   component: CartsList,
@@ -35,6 +36,7 @@ function CartsList() {
   const { data: user } = useCurrentUser();
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<string>("all");
+  const [deptFilter, setDeptFilter] = useState<string>("all");
   const [from, setFrom] = useState<Date | undefined>();
   const [to, setTo] = useState<Date | undefined>();
   const [viewId, setViewId] = useState<string | null>(null);
@@ -62,13 +64,14 @@ function CartsList() {
     const q = search.trim().toLowerCase();
     return carts.filter((c: any) => {
       if (status !== "all" && c.status !== status) return false;
+      if (deptFilter !== "all" && c.department_id !== deptFilter) return false;
       if (q && !c.cart_number.toLowerCase().includes(q)) return false;
       const updated = new Date(c.updated_at ?? c.created_at);
       if (from && updated < from) return false;
       if (to && updated > new Date(to.getTime() + 86400000)) return false;
       return true;
     });
-  }, [carts, search, status, from, to]);
+  }, [carts, search, status, deptFilter, from, to]);
 
   return (
     <div>
@@ -106,6 +109,7 @@ function CartsList() {
               Clear
             </Button>
           )}
+          <DepartmentFilter value={deptFilter} onChange={setDeptFilter} />
           <Select value={status} onValueChange={setStatus}>
             <SelectTrigger className="w-56"><SelectValue /></SelectTrigger>
             <SelectContent>
