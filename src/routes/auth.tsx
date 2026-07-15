@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Eye, EyeOff, User, Lock, ArrowRight, FolderClosed, FileText, Cloud, ShieldCheck, Mail } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import bgAsset from "@/assets/darms-bg.jpg.asset.json";
+import bgAsset from "@/assets/darms-clipart-bg.jpg.asset.json";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -244,14 +244,11 @@ function AuthPage() {
             )}
 
             {mode === "signin" && (
-              <div className="flex items-center justify-between pt-1">
+              <div className="flex items-center pt-1">
                 <label className="flex items-center gap-2 text-sm text-slate-600 cursor-pointer">
                   <Checkbox checked={remember} onCheckedChange={(v) => setRemember(!!v)} />
                   Remember me
                 </label>
-                <button type="button" className="text-sm text-[#3b6ea5] hover:underline font-medium">
-                  Forgot password?
-                </button>
               </div>
             )}
 
