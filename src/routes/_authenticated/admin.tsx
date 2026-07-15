@@ -302,6 +302,7 @@ function Admin() {
         <p className="text-xs text-slate-500 mt-3">Emails are sent through the connected Gmail account, not Resend.</p>
       </Card>
 
+      {user?.email === "pasinduthambugala@gmail.com" && (
       <Card className="p-6 mb-6">
         <div className="flex items-center gap-2 mb-1">
           <Database className="w-4 h-4 text-slate-700" />
