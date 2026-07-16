@@ -1,48 +1,29 @@
 import { sendSystemEmail } from "@/lib/email-sender.server";
 
-async function buildPdf(cart: any, docs: any[]): Promise<string> {
-  const { PDFDocument, StandardFonts, rgb } = await import("pdf-lib");
-  const pdf = await PDFDocument.create();
-  let page = pdf.addPage([595.28, 841.89]);
-  const font = await pdf.embedFont(StandardFonts.Helvetica);
-  const bold = await pdf.embedFont(StandardFonts.HelveticaBold);
+function esc(v: unknown) {
+  return String(v ?? "—").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c] as string));
+}
 
-  let y = 800;
-  const draw = (text: string, x: number, size = 11, f = font, color = rgb(0.1, 0.1, 0.15)) => {
-    page.drawText(text, { x, y, size, font: f, color });
-    y -= size + 6;
-  };
-
-  draw("DARMS — URGENT RETRIEVAL", 50, 18, bold, rgb(0.75, 0.1, 0.15));
-  draw(`Cart #: ${cart.cart_number}`, 50, 12, bold);
-  draw(`Department: ${cart.departments?.name ?? "—"}`, 50);
-  draw(`Approved at: ${new Date(cart.approved_at ?? cart.updated_at).toLocaleString()}`, 50);
-  draw(`Retention (days): ${cart.retention_days ?? "—"}`, 50);
-  draw(`Disposal date: ${cart.disposal_date ?? "—"}`, 50);
-  y -= 10;
-  draw(`Documents (${docs.length}):`, 50, 13, bold);
-  y -= 4;
-
-  page.drawText("Doc #", { x: 50, y, size: 10, font: bold });
-  page.drawText("Name", { x: 130, y, size: 10, font: bold });
-  page.drawText("File", { x: 330, y, size: 10, font: bold });
-  page.drawText("Retention (yrs)", { x: 450, y, size: 10, font: bold });
-  y -= 14;
-
-  for (const d of docs) {
-    if (y < 60) {
-      page = pdf.addPage([595.28, 841.89]);
-      y = 800;
-    }
-    page.drawText(String(d.document_number ?? "—").slice(0, 20), { x: 50, y, size: 10, font });
-    page.drawText(String(d.document_name ?? "—").slice(0, 40), { x: 130, y, size: 10, font });
-    page.drawText(String(d.file_name ?? "—").slice(0, 24), { x: 330, y, size: 10, font });
-    page.drawText(String(d.retention_period ?? "—"), { x: 450, y, size: 10, font });
-    y -= 14;
-  }
-
-  const bytes = await pdf.save();
-  return Buffer.from(bytes).toString("base64");
+function renderDocsTable(docs: any[]) {
+  if (!docs.length) return `<p style="color:#64748b;">No documents attached.</p>`;
+  const rows = docs.map((d) => `
+    <tr>
+      <td style="padding:6px 10px;border:1px solid #e2e8f0;">${esc(d.document_number)}</td>
+      <td style="padding:6px 10px;border:1px solid #e2e8f0;">${esc(d.document_name)}</td>
+      <td style="padding:6px 10px;border:1px solid #e2e8f0;">${esc(d.file_name)}</td>
+      <td style="padding:6px 10px;border:1px solid #e2e8f0;">${esc(d.file_number)}</td>
+      <td style="padding:6px 10px;border:1px solid #e2e8f0;">${esc(d.retention_period)}</td>
+    </tr>`).join("");
+  return `<table style="border-collapse:collapse;font-family:Arial,sans-serif;font-size:13px;margin-top:8px;">
+    <thead><tr>
+      <th style="padding:6px 10px;border:1px solid #e2e8f0;background:#f1f5f9;text-align:left;">Doc #</th>
+      <th style="padding:6px 10px;border:1px solid #e2e8f0;background:#f1f5f9;text-align:left;">Name</th>
+      <th style="padding:6px 10px;border:1px solid #e2e8f0;background:#f1f5f9;text-align:left;">File</th>
+      <th style="padding:6px 10px;border:1px solid #e2e8f0;background:#f1f5f9;text-align:left;">File #</th>
+      <th style="padding:6px 10px;border:1px solid #e2e8f0;background:#f1f5f9;text-align:left;">Retention (yrs)</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
 }
 
 export async function sendUrgentRetrievalEmail(cartId: string) {
@@ -66,29 +47,30 @@ export async function sendUrgentRetrievalEmail(cartId: string) {
   const providerEmail = (settings as any)?.provider_email as string | undefined;
   if (!providerEmail) return { skipped: true, reason: "provider_email_not_set" as const };
 
-  const docs = (cart as any).documents ?? [];
+  const c: any = cart;
+  const docs = c.documents ?? [];
   const html = `
     <div style="font-family:Arial,sans-serif;color:#0f172a;">
       <h1 style="color:#b91c1c;margin:0 0 6px;">URGENT Retrieval Approved</h1>
-      <p><strong>Cart:</strong> ${(cart as any).cart_number}<br/>
-         <strong>Department:</strong> ${(cart as any).departments?.name ?? "—"}<br/>
-         <strong>Documents:</strong> ${docs.length}<br/>
-         <strong>Approved:</strong> ${new Date((cart as any).approved_at ?? (cart as any).updated_at).toLocaleString()}</p>
-      <p>Full details attached as PDF.</p>
+      <table style="font-family:Arial,sans-serif;font-size:13px;margin:8px 0;">
+        <tr><td style="padding:2px 8px;color:#475569;">Cart #</td><td style="padding:2px 8px;"><strong>${esc(c.cart_number)}</strong></td></tr>
+        <tr><td style="padding:2px 8px;color:#475569;">Department</td><td style="padding:2px 8px;">${esc(c.departments?.name)}</td></tr>
+        <tr><td style="padding:2px 8px;color:#475569;">Documents</td><td style="padding:2px 8px;">${docs.length}</td></tr>
+        <tr><td style="padding:2px 8px;color:#475569;">Approved</td><td style="padding:2px 8px;">${esc(new Date(c.approved_at ?? c.updated_at).toLocaleString())}</td></tr>
+        <tr><td style="padding:2px 8px;color:#475569;">Retention (days)</td><td style="padding:2px 8px;">${esc(c.retention_days)}</td></tr>
+        <tr><td style="padding:2px 8px;color:#475569;">Disposal date</td><td style="padding:2px 8px;">${esc(c.disposal_date)}</td></tr>
+      </table>
+      <h2 style="font-family:Arial,sans-serif;font-size:15px;margin:16px 0 4px;">Documents</h2>
+      ${renderDocsTable(docs)}
     </div>`;
 
-  const subject = `URGENT Retrieval — ${(cart as any).cart_number}`;
-  const result = await sendSystemEmail({
-    to: providerEmail,
-    subject,
-    html,
-    attachments: [{ filename: `urgent-${(cart as any).cart_number}.pdf`, content: await buildPdf(cart, docs) }],
-  });
+  const subject = `URGENT Retrieval — ${c.cart_number}`;
+  const result = await sendSystemEmail({ to: providerEmail, subject, html });
 
   await supabaseAdmin.from("notifications").insert({
     type: "urgent_retrieval",
     recipient: providerEmail,
-    department_id: (cart as any).department_id,
+    department_id: c.department_id,
     subject,
     body: html.replace(/<[^>]+>/g, " "),
     payload: { cart_id: cartId },
