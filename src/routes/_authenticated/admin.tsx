@@ -254,7 +254,7 @@ function Admin() {
         <h2 className="font-semibold text-slate-900 mb-1">Storage provider email</h2>
         <p className="text-xs text-slate-500 mb-3">
           Daily digest of approved carts &amp; normal retrievals is sent to this address at <strong>3:00 PM</strong> (only if there is new activity since the last send).
-          Urgent retrievals are emailed immediately with a PDF attachment after approval.
+          Urgent retrievals are emailed immediately with cart and document details after approval.
         </p>
         <div className="flex gap-2 max-w-lg">
           <Input type="email" placeholder="provider@example.com" value={providerEmail} onChange={(e) => setProviderEmail(e.target.value)} />
