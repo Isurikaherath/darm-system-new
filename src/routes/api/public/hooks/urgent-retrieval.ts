@@ -1,4 +1,4 @@
-// Immediate URGENT retrieval notification: sends a PDF to the storage provider.
+// Immediate URGENT retrieval notification: sends cart/document details to the storage provider.
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/api/public/hooks/urgent-retrieval")({
