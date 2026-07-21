@@ -187,6 +187,9 @@ function CartsTable({ filtered, setViewId }: { filtered: any[]; setViewId: (id: 
       <Pagination page={page} totalPages={totalPages} onChange={setPage} total={total} pageSize={pageSize} />
     </Card>
   );
+}
+
+
 
 function DateField({ label, value, onChange }: { label: string; value?: Date; onChange: (d?: Date) => void }) {
   return (
