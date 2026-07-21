@@ -202,8 +202,11 @@ function PendingTable({
     onError: (e: any) => toast.error(e.message),
   });
 
+  const rows = q.data ?? [];
+  const { page, setPage, totalPages, paged, pageSize, total } = usePagination(rows, 20);
+
   if (q.isLoading) return <div className="text-sm text-slate-400 py-6 text-center">Loading…</div>;
-  if ((q.data ?? []).length === 0)
+  if (rows.length === 0)
     return <div className="text-sm text-slate-400 py-6 text-center">No pending approvals in this date range.</div>;
 
   return (
@@ -223,7 +226,7 @@ function PendingTable({
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {q.data!.map((c: any) => {
+            {paged.map((c: any) => {
               const spec = specs.find((s) => s.status === c.status)!;
               return (
                 <tr key={c.id}>
@@ -254,7 +257,9 @@ function PendingTable({
             })}
           </tbody>
         </table>
+        <Pagination page={page} totalPages={totalPages} onChange={setPage} total={total} pageSize={pageSize} />
       </div>
+
 
       <CartViewDialog cartId={viewId} onClose={() => setViewId(null)} />
 
