@@ -19,6 +19,7 @@ import type { CartStatus } from "@/lib/types";
 import { CartViewDialog } from "./carts.index";
 import { useServerFn } from "@tanstack/react-start";
 import { notifyRetrievalApproval } from "@/lib/retrieval-email.functions";
+import { Pagination, usePagination } from "@/components/Pagination";
 
 export const Route = createFileRoute("/_authenticated/approvals")({
   component: ApprovalsPage,

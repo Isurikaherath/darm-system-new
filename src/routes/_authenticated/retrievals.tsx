@@ -12,6 +12,7 @@ import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { DepartmentFilter } from "@/components/DepartmentFilter";
+import { Pagination, usePagination } from "@/components/Pagination";
 
 export const Route = createFileRoute("/_authenticated/retrievals")({
   component: Retrievals,
@@ -48,6 +49,8 @@ function Retrievals() {
     });
   }, [data, from, to, deptFilter]);
 
+  const { page, setPage, totalPages, paged, pageSize, total } = usePagination(filtered, 20);
+
   return (
     <div>
       <header className="mb-6 flex items-center justify-between flex-wrap gap-3">
@@ -77,7 +80,7 @@ function Retrievals() {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {filtered.length ? filtered.map((c: any) => (
+            {paged.length ? paged.map((c: any) => (
               <tr key={c.id}>
                 <td className="px-4 py-3 font-medium">{c.cart_number}</td>
                 <td className="px-4 py-3"><StatusBadge status={c.status} /></td>
@@ -93,6 +96,7 @@ function Retrievals() {
             )}
           </tbody>
         </table>
+        <Pagination page={page} totalPages={totalPages} onChange={setPage} total={total} pageSize={pageSize} />
       </Card>
     </div>
   );
