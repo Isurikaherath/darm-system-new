@@ -30,15 +30,21 @@ function Costs() {
     },
   });
   const isOfficeServicesDept = (deptNameQ.data ?? "").trim().toLowerCase() === "office services";
-  const isOffice =
-    user?.roles.includes("super_admin") ||
-    user?.roles.includes("office_services") ||
-    isOfficeServicesDept;
   const isSuper = !!user?.roles.includes("super_admin");
+  const isDeptHead = !!user?.roles.includes("dept_head");
+  // Dept heads are ALWAYS scoped to their own department and cannot create POs.
+  const isOffice =
+    !isDeptHead && (
+      isSuper ||
+      user?.roles.includes("office_services") ||
+      isOfficeServicesDept
+    );
   const [superDept, setSuperDept] = useState<string>("all");
-  const deptFilter = !isOffice
+  const deptFilter = isDeptHead
     ? user?.profile.department_id ?? null
-    : (isSuper && superDept !== "all" ? superDept : null);
+    : !isOffice
+      ? user?.profile.department_id ?? null
+      : (isSuper && superDept !== "all" ? superDept : null);
 
   const posQ = useQuery({
     queryKey: ["pos", deptFilter],
