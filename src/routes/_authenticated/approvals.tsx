@@ -18,7 +18,7 @@ import { Eye, MessageSquare } from "lucide-react";
 import type { CartStatus } from "@/lib/types";
 import { CartViewDialog } from "./carts.index";
 import { useServerFn } from "@tanstack/react-start";
-import { notifyUrgentRetrievalApproval } from "@/lib/retrieval-email.functions";
+import { notifyRetrievalApproval } from "@/lib/retrieval-email.functions";
 
 export const Route = createFileRoute("/_authenticated/approvals")({
   component: ApprovalsPage,
@@ -142,14 +142,15 @@ function PendingTable({
     },
   });
 
-  const notifyUrgentFn = useServerFn(notifyUrgentRetrievalApproval);
+  const notifyRetrievalFn = useServerFn(notifyRetrievalApproval);
 
-  const sendUrgentNotify = async (cart: any) => {
-    if (cart.status !== "pending_retrieval_approval" || cart.retrieval_type !== "urgent") return;
+  const sendRetrievalNotify = async (cart: any) => {
+    if (cart.status !== "pending_retrieval_approval") return;
+    const isUrgent = cart.retrieval_type === "urgent";
     try {
-      const res: any = await notifyUrgentFn({ data: { cartId: cart.id } });
-      if (res?.ok) toast.success("Urgent retrieval email sent to storage provider");
-      else if (res?.skipped) toast.message("Urgent retrieval email skipped");
+      const res: any = await notifyRetrievalFn({ data: { cartId: cart.id } });
+      if (res?.ok) toast.success(`${isUrgent ? "Urgent" : "Normal"} retrieval email sent to storage provider`);
+      else if (res?.skipped) toast.message("Retrieval email skipped");
     } catch (e: any) {
       toast.error(`Email failed: ${e.message ?? e}`);
     }
@@ -173,7 +174,7 @@ function PendingTable({
       qc.invalidateQueries({ queryKey: ["approvals-pending"] });
       qc.invalidateQueries({ queryKey: ["approvals-history"] });
       qc.invalidateQueries({ queryKey: ["carts-with-counts"] });
-      void sendUrgentNotify(cart);
+      void sendRetrievalNotify(cart);
     },
     onError: (e: any) => toast.error(e.message),
   });
