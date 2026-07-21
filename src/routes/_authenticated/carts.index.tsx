@@ -21,6 +21,7 @@ import { STATUS_LABELS, type CartStatus } from "@/lib/types";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { DepartmentFilter } from "@/components/DepartmentFilter";
+import { Pagination, usePagination } from "@/components/Pagination";
 
 export const Route = createFileRoute("/_authenticated/carts/")({
   component: CartsList,
@@ -122,56 +123,8 @@ function CartsList() {
         </div>
       </Card>
 
-      <Card className="overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-slate-50 text-slate-600 text-xs uppercase">
-            <tr>
-              <th className="text-left px-4 py-3">Cart Number</th>
-              <th className="text-left px-4 py-3">Department</th>
-              <th className="text-left px-4 py-3">Documents</th>
-              <th className="text-left px-4 py-3">Capacity</th>
-              <th className="text-left px-4 py-3">Status</th>
-              <th className="text-left px-4 py-3">Last Updated</th>
-              <th className="text-right px-4 py-3">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100">
-            {filtered.length ? filtered.map((c: any) => {
-              const count = c.documents?.length ?? 0;
-              const pct = Math.round((count / 60) * 100);
-              return (
-                <tr key={c.id}>
-                  <td className="px-4 py-3 font-medium text-slate-900">{c.cart_number}</td>
-                  <td className="px-4 py-3 text-slate-600">{c.departments?.name ?? "—"}</td>
-                  <td className="px-4 py-3 text-slate-600">{count}/60</td>
-                  <td className="px-4 py-3 text-slate-600">{pct}%</td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-2">
-                      <StatusBadge status={c.status} />
-                      {c.rejection_reason && (
-                        <span title={c.rejection_reason}
-                          className="text-[10px] font-semibold uppercase px-2 py-0.5 rounded bg-rose-100 text-rose-700 border border-rose-200">
-                          Rejected
-                        </span>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-slate-500">
-                    {new Date(c.updated_at ?? c.created_at).toLocaleDateString()}
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <Button size="sm" variant="ghost" onClick={() => setViewId(c.id)}>
-                      <Eye className="w-4 h-4 mr-1" /> View
-                    </Button>
-                  </td>
-                </tr>
-              );
-            }) : (
-              <tr><td colSpan={7} className="px-4 py-8 text-center text-slate-400">No carts found.</td></tr>
-            )}
-          </tbody>
-        </table>
-      </Card>
+      <CartsTable filtered={filtered} setViewId={setViewId} />
+
 
       <CartViewDialog cartId={viewId} onClose={() => setViewId(null)} />
     </div>
