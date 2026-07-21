@@ -20,6 +20,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { DepartmentFilter } from "@/components/DepartmentFilter";
+import { Pagination, usePagination } from "@/components/Pagination";
 
 export const Route = createFileRoute("/_authenticated/documents")({
   component: DocsList,
@@ -63,6 +64,8 @@ function DocsList() {
         .some((v: string) => v.toLowerCase().includes(q));
     });
   }, [data, search, deptFilter]);
+
+  const { page, setPage, totalPages, paged, pageSize, total } = usePagination(filtered, 20);
 
   return (
     <div>
@@ -116,8 +119,8 @@ function DocsList() {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {filtered.length ? (
-              filtered.map((d: any) => (
+            {paged.length ? (
+              paged.map((d: any) => (
                 <tr key={d.id}>
                   <td className="px-4 py-3 font-medium text-slate-900">{d.document_name}</td>
                   <td className="px-4 py-3 font-mono text-xs">{d.document_number}</td>
@@ -155,6 +158,7 @@ function DocsList() {
             )}
           </tbody>
         </table>
+        <Pagination page={page} totalPages={totalPages} onChange={setPage} total={total} pageSize={pageSize} />
       </Card>
 
       {/* Document Detail Dialog */}

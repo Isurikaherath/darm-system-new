@@ -11,6 +11,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { DepartmentFilter } from "@/components/DepartmentFilter";
+import { Pagination, usePagination } from "@/components/Pagination";
 
 export const Route = createFileRoute("/_authenticated/disposal")({
   component: Disposal,
@@ -85,6 +86,9 @@ function Disposal() {
     });
   }, [historyQ.data, hFrom, hTo, hDept]);
 
+  const upP = usePagination(upcoming, 20);
+  const hP = usePagination(history, 20);
+
   return (
     <div>
       <header className="mb-6">
@@ -122,7 +126,7 @@ function Disposal() {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {upcoming.length ? upcoming.map((c: any) => (
+            {upP.paged.length ? upP.paged.map((c: any) => (
               <tr key={c.id}>
                 <td className="px-4 py-3 font-medium">{c.cart_number}</td>
                 <td className="px-4 py-3">{c.departments?.name}</td>
@@ -137,6 +141,7 @@ function Disposal() {
             )}
           </tbody>
         </table>
+        <Pagination page={upP.page} totalPages={upP.totalPages} onChange={upP.setPage} total={upP.total} pageSize={upP.pageSize} />
       </Card>
 
       <Card className="overflow-hidden">
@@ -167,7 +172,7 @@ function Disposal() {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {history.length ? history.map((r: any) => (
+            {hP.paged.length ? hP.paged.map((r: any) => (
               <tr key={r.id}>
                 <td className="px-4 py-3 font-medium">{r.carts?.cart_number ?? "—"}</td>
                 <td className="px-4 py-3">{r.carts?.departments?.name ?? "—"}</td>
@@ -180,6 +185,7 @@ function Disposal() {
             )}
           </tbody>
         </table>
+        <Pagination page={hP.page} totalPages={hP.totalPages} onChange={hP.setPage} total={hP.total} pageSize={hP.pageSize} />
       </Card>
     </div>
   );

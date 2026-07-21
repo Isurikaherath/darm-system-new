@@ -19,6 +19,7 @@ import type { CartStatus } from "@/lib/types";
 import { CartViewDialog } from "./carts.index";
 import { useServerFn } from "@tanstack/react-start";
 import { notifyRetrievalApproval } from "@/lib/retrieval-email.functions";
+import { Pagination, usePagination } from "@/components/Pagination";
 
 export const Route = createFileRoute("/_authenticated/approvals")({
   component: ApprovalsPage,
@@ -201,8 +202,11 @@ function PendingTable({
     onError: (e: any) => toast.error(e.message),
   });
 
+  const rows = q.data ?? [];
+  const { page, setPage, totalPages, paged, pageSize, total } = usePagination(rows, 20);
+
   if (q.isLoading) return <div className="text-sm text-slate-400 py-6 text-center">Loading…</div>;
-  if ((q.data ?? []).length === 0)
+  if (rows.length === 0)
     return <div className="text-sm text-slate-400 py-6 text-center">No pending approvals in this date range.</div>;
 
   return (
@@ -222,7 +226,7 @@ function PendingTable({
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {q.data!.map((c: any) => {
+            {paged.map((c: any) => {
               const spec = specs.find((s) => s.status === c.status)!;
               return (
                 <tr key={c.id}>
@@ -253,7 +257,9 @@ function PendingTable({
             })}
           </tbody>
         </table>
+        <Pagination page={page} totalPages={totalPages} onChange={setPage} total={total} pageSize={pageSize} />
       </div>
+
 
       <CartViewDialog cartId={viewId} onClose={() => setViewId(null)} />
 
@@ -329,6 +335,8 @@ function ApprovalHistory({ user, scopeAll }: { user: any; scopeAll: boolean }) {
   });
 
   const isReject = (a: string) => a.includes("reject");
+  const rows = q.data ?? [];
+  const { page, setPage, totalPages, paged, pageSize, total } = usePagination(rows, 20);
 
   return (
     <Card className="p-5">
@@ -353,7 +361,7 @@ function ApprovalHistory({ user, scopeAll }: { user: any; scopeAll: boolean }) {
 
       {q.isLoading ? (
         <div className="text-sm text-slate-400 py-6 text-center">Loading…</div>
-      ) : (q.data ?? []).length === 0 ? (
+      ) : rows.length === 0 ? (
         <div className="text-sm text-slate-400 py-6 text-center">No approval activity in this range.</div>
       ) : (
         <div className="overflow-x-auto">
@@ -369,7 +377,7 @@ function ApprovalHistory({ user, scopeAll }: { user: any; scopeAll: boolean }) {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {q.data!.map((r: any) => (
+              {paged.map((r: any) => (
                 <tr key={r.id}>
                   <td className="py-2 font-medium text-slate-900">{r.carts?.cart_number ?? "—"}</td>
                   <td className="text-slate-600">{r.carts?.departments?.name ?? "—"}</td>
@@ -383,6 +391,7 @@ function ApprovalHistory({ user, scopeAll }: { user: any; scopeAll: boolean }) {
               ))}
             </tbody>
           </table>
+          <Pagination page={page} totalPages={totalPages} onChange={setPage} total={total} pageSize={pageSize} />
         </div>
       )}
     </Card>
