@@ -29,6 +29,19 @@ export const notifyUrgentRetrievalApproval = createServerFn({ method: "POST" })
       .maybeSingle();
     if (error || !cart) throw new Error(error?.message ?? "Urgent retrieval cart not found");
 
-    const { sendUrgentRetrievalEmail } = await import("@/lib/urgent-retrieval-email.server");
-    return sendUrgentRetrievalEmail(data.cartId);
+    const { sendRetrievalApprovalEmail } = await import("@/lib/retrieval-email.server");
+    return sendRetrievalApprovalEmail(data.cartId);
+  });
+
+export const notifyRetrievalApproval = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { cartId: string }) => data)
+  .handler(async ({ data, context }) => {
+    const { data: isSuper } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "super_admin" as any });
+    const { data: isOffice } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "office_services" as any });
+    const { data: isDeptHead } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "dept_head" as any });
+    if (!isSuper && !isOffice && !isDeptHead) throw new Error("Forbidden");
+
+    const { sendRetrievalApprovalEmail } = await import("@/lib/retrieval-email.server");
+    return sendRetrievalApprovalEmail(data.cartId);
   });
