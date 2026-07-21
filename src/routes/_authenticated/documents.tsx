@@ -20,6 +20,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { DepartmentFilter } from "@/components/DepartmentFilter";
+import { Pagination, usePagination } from "@/components/Pagination";
 
 export const Route = createFileRoute("/_authenticated/documents")({
   component: DocsList,
