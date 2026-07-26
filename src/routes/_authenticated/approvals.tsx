@@ -147,15 +147,18 @@ function PendingTable({
 
   const sendRetrievalNotify = async (cart: any) => {
     if (cart.status !== "pending_retrieval_approval") return;
-    const isUrgent = cart.retrieval_type === "urgent";
+    // Only urgent retrievals notify the provider immediately.
+    // Normal retrievals go out in the scheduled 3:00 PM daily digest.
+    if (cart.retrieval_type !== "urgent") return;
     try {
       const res: any = await notifyRetrievalFn({ data: { cartId: cart.id } });
-      if (res?.ok) toast.success(`${isUrgent ? "Urgent" : "Normal"} retrieval email sent to storage provider`);
+      if (res?.ok) toast.success("Urgent retrieval email sent to storage provider");
       else if (res?.skipped) toast.message("Retrieval email skipped");
     } catch (e: any) {
       toast.error(`Email failed: ${e.message ?? e}`);
     }
   };
+
 
   const approve = useMutation({
     mutationFn: async (cart: any) => {
