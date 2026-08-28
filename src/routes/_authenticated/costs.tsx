@@ -320,7 +320,7 @@ function NewPOForm({
         if (upErr) throw upErr;
         attachment_url = path;
         attachment_name = file.name;
-        mirrorFileFn({ data: { bucket: "po-attachments", path } }).catch(() => {});
+        mirrorFileFn({ data: { bucket: "po-attachments", path } }).catch(() => { });
       }
       const { data: po, error } = await supabase.from("purchase_orders").insert({
         po_number: poNumber,
@@ -375,7 +375,7 @@ function NewPOForm({
   return (
     <form onSubmit={submit} className="space-y-3 text-sm">
       <div>
-        <Label>PO Number</Label>
+        <Label>Invoice Number</Label>
         <Input value={poNumber} onChange={(e) => setPoNumber(e.target.value)} required />
       </div>
       <div>
