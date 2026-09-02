@@ -51,15 +51,14 @@ export async function sendUrgentRetrievalEmail(cartId: string) {
   const docs = c.documents ?? [];
   const html = `
     <div style="font-family:Arial,sans-serif;color:#0f172a;">
-      <h1 style="color:#b91c1c;margin:0 0 6px;">URGENT Retrieval Approved</h1>
+      <h1 style="color:#b91c1c;margin:0 0 6px;">URGENT Retrieval</h1>
       <table style="font-family:Arial,sans-serif;font-size:13px;margin:8px 0;">
         <tr><td style="padding:2px 8px;color:#475569;">Cart #</td><td style="padding:2px 8px;"><strong>${esc(c.cart_number)}</strong></td></tr>
         <tr><td style="padding:2px 8px;color:#475569;">Department</td><td style="padding:2px 8px;">${esc(c.departments?.name)}</td></tr>
+        <tr><td style="padding:2px 8px;color:#475569;">Priority</td><td style="padding:2px 8px;">urgent</td></tr>
         <tr><td style="padding:2px 8px;color:#475569;">Documents</td><td style="padding:2px 8px;">${docs.length}</td></tr>
-        <tr><td style="padding:2px 8px;color:#475569;">Approved</td><td style="padding:2px 8px;">${esc(new Date(c.approved_at ?? c.updated_at).toLocaleString())}</td></tr>
-        <tr><td style="padding:2px 8px;color:#475569;">Retention (days)</td><td style="padding:2px 8px;">${esc(c.retention_days)}</td></tr>
-        <tr><td style="padding:2px 8px;color:#475569;">Disposal date</td><td style="padding:2px 8px;">${esc(c.disposal_date)}</td></tr>
       </table>
+      <p style="margin:16px 0 8px;font-size:13px;color:#0f172a;">Please bring this cart to the department today.</p>
       <h2 style="font-family:Arial,sans-serif;font-size:15px;margin:16px 0 4px;">Documents</h2>
       ${renderDocsTable(docs)}
     </div>`;
