@@ -21,11 +21,19 @@ function fmtCartRows(carts: any[]) {
     </tr>`).join("");
 }
 
-function renderSection(title: string, byDept: Map<string, { name: string; carts: any[] }>) {
+function renderSection(
+  title: string,
+  byDept: Map<string, { name: string; carts: any[] }>,
+  type: "storage" | "retrieval"
+) {
   if (byDept.size === 0) return "";
   let html = `<h2 style="color:#0f172a;font-family:Arial,sans-serif;margin-top:24px;">${title}</h2>`;
   for (const [, g] of byDept) {
-    html += `<h3 style="color:#334155;font-family:Arial,sans-serif;margin:12px 0 6px;">${g.name} — ${g.carts.length} cart(s)</h3>`;
+    const actionLabel =
+      type === "storage"
+        ? `collect from the department (${g.carts.length} cart${g.carts.length === 1 ? "" : "s"})`
+        : `Bring Boxes and return to the Department (${g.carts.length} cart${g.carts.length === 1 ? "" : "s"})`;
+    html += `<h3 style="color:#334155;font-family:Arial,sans-serif;margin:12px 0 6px;">${g.name} — ${actionLabel}</h3>`;
     html += `<table style="border-collapse:collapse;font-family:Arial,sans-serif;font-size:13px;">
       <thead><tr>
         <th style="padding:6px 10px;border:1px solid #e2e8f0;background:#f1f5f9;text-align:left;">Cart #</th>
@@ -101,8 +109,8 @@ export const Route = createFileRoute("/api/public/hooks/storage-notification")({
           <div style="font-family:Arial,sans-serif;color:#0f172a;">
             <h1 style="margin:0 0 8px;">DARMS Daily Digest</h1>
             <p style="color:#475569;margin:0 0 8px;">Approved activity since ${new Date(since).toLocaleString()}.</p>
-            ${renderSection("Storage — Approved Carts (Pickup)", approvedByDept)}
-            ${renderSection("Retrievals — Approved (Normal Priority)", retrievedByDept)}
+            ${renderSection("Storage — Approved Carts (Pickup)", approvedByDept, "storage")}
+            ${renderSection("Retrievals — Approved (Normal Priority)", retrievedByDept, "retrieval")}
           </div>`;
 
         const subject = `DARMS daily digest — ${approved?.length ?? 0} storage, ${retrieved?.length ?? 0} retrievals`;
