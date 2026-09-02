@@ -109,8 +109,8 @@ export const Route = createFileRoute("/api/public/hooks/storage-notification")({
           <div style="font-family:Arial,sans-serif;color:#0f172a;">
             <h1 style="margin:0 0 8px;">DARMS Daily Digest</h1>
             <p style="color:#475569;margin:0 0 8px;">Approved activity since ${new Date(since).toLocaleString()}.</p>
-            ${renderSection("Storage — Approved Carts (Pickup)", approvedByDept)}
-            ${renderSection("Retrievals — Approved (Normal Priority)", retrievedByDept)}
+            ${renderSection("Storage — Approved Carts (Pickup)", approvedByDept, "storage")}
+            ${renderSection("Retrievals — Approved (Normal Priority)", retrievedByDept, "retrieval")}
           </div>`;
 
         const subject = `DARMS daily digest — ${approved?.length ?? 0} storage, ${retrieved?.length ?? 0} retrievals`;
