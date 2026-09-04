@@ -4,27 +4,6 @@ function esc(v: unknown) {
   return String(v ?? "—").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c] as string));
 }
 
-function renderDocsTable(docs: any[]) {
-  if (!docs.length) return `<p style="color:#64748b;">No documents attached.</p>`;
-  const rows = docs.map((d) => `
-    <tr>
-      <td style="padding:6px 10px;border:1px solid #e2e8f0;">${esc(d.document_number)}</td>
-      <td style="padding:6px 10px;border:1px solid #e2e8f0;">${esc(d.document_name)}</td>
-      <td style="padding:6px 10px;border:1px solid #e2e8f0;">${esc(d.file_name)}</td>
-      <td style="padding:6px 10px;border:1px solid #e2e8f0;">${esc(d.file_number)}</td>
-      <td style="padding:6px 10px;border:1px solid #e2e8f0;">${esc(d.retention_period)}</td>
-    </tr>`).join("");
-  return `<table style="border-collapse:collapse;font-family:Arial,sans-serif;font-size:13px;margin-top:8px;">
-    <thead><tr>
-      <th style="padding:6px 10px;border:1px solid #e2e8f0;background:#f1f5f9;text-align:left;">Doc #</th>
-      <th style="padding:6px 10px;border:1px solid #e2e8f0;background:#f1f5f9;text-align:left;">Name</th>
-      <th style="padding:6px 10px;border:1px solid #e2e8f0;background:#f1f5f9;text-align:left;">File</th>
-      <th style="padding:6px 10px;border:1px solid #e2e8f0;background:#f1f5f9;text-align:left;">File #</th>
-      <th style="padding:6px 10px;border:1px solid #e2e8f0;background:#f1f5f9;text-align:left;">Retention (yrs)</th>
-    </tr></thead>
-    <tbody>${rows}</tbody>
-  </table>`;
-}
 
 export async function sendUrgentRetrievalEmail(cartId: string) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
