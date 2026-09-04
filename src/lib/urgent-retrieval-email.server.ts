@@ -4,27 +4,6 @@ function esc(v: unknown) {
   return String(v ?? "—").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c] as string));
 }
 
-function renderDocsTable(docs: any[]) {
-  if (!docs.length) return `<p style="color:#64748b;">No documents attached.</p>`;
-  const rows = docs.map((d) => `
-    <tr>
-      <td style="padding:6px 10px;border:1px solid #e2e8f0;">${esc(d.document_number)}</td>
-      <td style="padding:6px 10px;border:1px solid #e2e8f0;">${esc(d.document_name)}</td>
-      <td style="padding:6px 10px;border:1px solid #e2e8f0;">${esc(d.file_name)}</td>
-      <td style="padding:6px 10px;border:1px solid #e2e8f0;">${esc(d.file_number)}</td>
-      <td style="padding:6px 10px;border:1px solid #e2e8f0;">${esc(d.retention_period)}</td>
-    </tr>`).join("");
-  return `<table style="border-collapse:collapse;font-family:Arial,sans-serif;font-size:13px;margin-top:8px;">
-    <thead><tr>
-      <th style="padding:6px 10px;border:1px solid #e2e8f0;background:#f1f5f9;text-align:left;">Doc #</th>
-      <th style="padding:6px 10px;border:1px solid #e2e8f0;background:#f1f5f9;text-align:left;">Name</th>
-      <th style="padding:6px 10px;border:1px solid #e2e8f0;background:#f1f5f9;text-align:left;">File</th>
-      <th style="padding:6px 10px;border:1px solid #e2e8f0;background:#f1f5f9;text-align:left;">File #</th>
-      <th style="padding:6px 10px;border:1px solid #e2e8f0;background:#f1f5f9;text-align:left;">Retention (yrs)</th>
-    </tr></thead>
-    <tbody>${rows}</tbody>
-  </table>`;
-}
 
 export async function sendUrgentRetrievalEmail(cartId: string) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -48,19 +27,15 @@ export async function sendUrgentRetrievalEmail(cartId: string) {
   if (!providerEmail) return { skipped: true, reason: "provider_email_not_set" as const };
 
   const c: any = cart;
-  const docs = c.documents ?? [];
   const html = `
     <div style="font-family:Arial,sans-serif;color:#0f172a;">
       <h1 style="color:#b91c1c;margin:0 0 6px;">URGENT Retrieval</h1>
       <table style="font-family:Arial,sans-serif;font-size:13px;margin:8px 0;">
-        <tr><td style="padding:2px 8px;color:#475569;">Cart #</td><td style="padding:2px 8px;"><strong>${esc(c.cart_number)}</strong></td></tr>
+        <tr><td style="padding:2px 8px;color:#475569;">Cart</td><td style="padding:2px 8px;"><strong>${esc(c.cart_number)}</strong></td></tr>
         <tr><td style="padding:2px 8px;color:#475569;">Department</td><td style="padding:2px 8px;">${esc(c.departments?.name)}</td></tr>
         <tr><td style="padding:2px 8px;color:#475569;">Priority</td><td style="padding:2px 8px;">urgent</td></tr>
-        <tr><td style="padding:2px 8px;color:#475569;">Documents</td><td style="padding:2px 8px;">${docs.length}</td></tr>
       </table>
       <p style="margin:16px 0 8px;font-size:13px;color:#0f172a;">Please bring this cart to the department today.</p>
-      <h2 style="font-family:Arial,sans-serif;font-size:15px;margin:16px 0 4px;">Documents</h2>
-      ${renderDocsTable(docs)}
     </div>`;
 
   const subject = `URGENT Retrieval — ${c.cart_number}`;
