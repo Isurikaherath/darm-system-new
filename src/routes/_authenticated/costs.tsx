@@ -173,10 +173,10 @@ function Costs() {
                 {reportQ.data?.length ? reportQ.data.map((r: any) => (
                   <tr key={r.department_id}>
                     <td className="px-4 py-2 font-medium">{r.department_name}</td>
-                    <td className="px-4 py-2">${Number(r.storage_cost).toFixed(2)}</td>
-                    <td className="px-4 py-2">${Number(r.transport_cost).toFixed(2)}</td>
-                    <td className="px-4 py-2">${Number(r.urgent_cost).toFixed(2)}</td>
-                    <td className="px-4 py-2 font-semibold">${Number(r.grand_total).toFixed(2)}</td>
+                    <td className="px-4 py-2">{Number(r.storage_cost).toFixed(2)}</td>
+                    <td className="px-4 py-2">{Number(r.transport_cost).toFixed(2)}</td>
+                    <td className="px-4 py-2">{Number(r.urgent_cost).toFixed(2)}</td>
+                    <td className="px-4 py-2 font-semibold">{Number(r.grand_total).toFixed(2)}</td>
                   </tr>
                 )) : <tr><td colSpan={5} className="px-4 py-6 text-center text-slate-400">No cost data.</td></tr>}
               </tbody>
@@ -204,8 +204,8 @@ function Costs() {
                     <td className="px-4 py-2 font-medium">{p.po_number}</td>
                     <td className="px-4 py-2">{p.po_type}</td>
                     <td className="px-4 py-2">{p.box_count ?? "—"}</td>
-                    <td className="px-4 py-2">{p.unit_price ? `$${Number(p.unit_price).toFixed(2)}` : "—"}</td>
-                    <td className="px-4 py-2 font-medium">${Number(p.amount).toFixed(2)}</td>
+                    <td className="px-4 py-2">{p.unit_price ? `${Number(p.unit_price).toFixed(2)}` : "—"}</td>
+                    <td className="px-4 py-2 font-medium">{Number(p.amount).toFixed(2)}</td>
                     <td className="px-4 py-2">{p.departments?.name ?? "—"}</td>
                     <td className="px-4 py-2 text-slate-500">{p.period_start ?? "—"} → {p.period_end ?? "—"}</td>
                     <td className="px-4 py-2">
