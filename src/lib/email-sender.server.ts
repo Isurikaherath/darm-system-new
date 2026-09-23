@@ -42,7 +42,7 @@ function toBase64Url(value: string) {
 }
 
 function pickFrom(settings: any) {
-  const configured = (settings?.sender_email || process.env.EMAIL_FROM_ADDRESS || "").trim();
+  const configured = (settings?.sender_email || process.env.DARMS || "").trim();
   const name = settings?.sender_name || "DARMS";
   if (!configured) return undefined;
   return `${sanitizeHeader(name)} <${sanitizeHeader(configured)}>`;
