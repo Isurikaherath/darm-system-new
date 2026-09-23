@@ -10,6 +10,7 @@ import {
   UserCircle,
   CheckSquare,
   LogOut,
+  Wallet,
 } from "lucide-react";
 import { useEffect, useMemo, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -33,7 +34,7 @@ const NAV: NavItem[] = [
   { to: "/approvals", label: "Approvals", icon: CheckSquare, roles: ["super_admin", "office_services", "dept_head"] },
   { to: "/retrievals", label: "Retrievals", icon: RefreshCw },
   { to: "/disposal", label: "Disposal Alerts", icon: AlertTriangle },
-  { to: "/costs", label: "Cost Management", icon: DollarSign, roles: ["super_admin", "office_services", "dept_head"] },
+  { to: "/costs", label: "Cost Management", icon: Wallet, roles: ["super_admin", "office_services", "dept_head"] },
   { to: "/profile", label: "My Profile", icon: UserCircle },
   { to: "/admin", label: "Admin", icon: Users, roles: ["super_admin"] },
 ];
