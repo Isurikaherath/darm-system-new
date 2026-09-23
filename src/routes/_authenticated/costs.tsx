@@ -111,7 +111,7 @@ function Costs() {
       <header className="mb-6 flex items-start justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Cost Management</h1>
-          <p className="text-sm text-slate-500">Purchase orders, allocations & department cost reporting.</p>
+          <p className="text-sm text-slate-500">Invoices, allocations & department cost reporting.</p>
         </div>
         <DepartmentFilter value={superDept} onChange={setSuperDept} />
       </header>
@@ -120,7 +120,7 @@ function Costs() {
         {isOffice && (
           <div className="lg:col-span-1">
             <Card className="p-6">
-              <h2 className="font-semibold mb-3">New Purchase Order</h2>
+              <h2 className="font-semibold mb-3">New Invoice</h2>
               <NewPOForm
                 inventory={inventoryQ.data ?? []}
                 onCreated={() => {
@@ -184,11 +184,11 @@ function Costs() {
           </Card>
 
           <Card className="overflow-hidden">
-            <div className="px-4 py-3 border-b border-slate-100 font-semibold">Purchase Orders</div>
+            <div className="px-4 py-3 border-b border-slate-100 font-semibold">Invoices</div>
             <table className="w-full text-sm">
               <thead className="bg-slate-50 text-xs uppercase text-slate-600">
                 <tr>
-                  <th className="text-left px-4 py-2">PO #</th>
+                  <th className="text-left px-4 py-2">Invoice</th>
                   <th className="text-left px-4 py-2">Type</th>
                   <th className="text-left px-4 py-2">Boxes</th>
                   <th className="text-left px-4 py-2">Unit Price</th>
@@ -222,7 +222,7 @@ function Costs() {
                       ) : "—"}
                     </td>
                   </tr>
-                )) : <tr><td colSpan={8} className="px-4 py-6 text-center text-slate-400">No purchase orders.</td></tr>}
+                )) : <tr><td colSpan={8} className="px-4 py-6 text-center text-slate-400">No Invoices.</td></tr>}
               </tbody>
             </table>
           </Card>
@@ -232,7 +232,7 @@ function Costs() {
             <table className="w-full text-sm">
               <thead className="bg-slate-50 text-xs uppercase text-slate-600">
                 <tr>
-                  <th className="text-left px-4 py-2">PO #</th>
+                  <th className="text-left px-4 py-2">Invoice</th>
                   <th className="text-left px-4 py-2">Type</th>
                   <th className="text-left px-4 py-2">Department</th>
                   <th className="text-left px-4 py-2">Carts</th>
