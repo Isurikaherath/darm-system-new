@@ -180,8 +180,28 @@ ALTER TABLE public.notifications ADD COLUMN IF NOT EXISTS payload jsonb;
 ALTER TABLE public.notifications ADD COLUMN IF NOT EXISTS sent_at timestamptz;
 ALTER TABLE public.notifications DISABLE ROW LEVEL SECURITY;
 
+-- Disable RLS and also add permissive policies so writes never get blocked even if RLS is re-enabled
+DO $$
+DECLARE
+  t text;
+  tables text[] := ARRAY[
+    'departments','job_titles','profiles','user_roles',
+    'carts','documents','cart_approvals',
+    'purchase_orders','cost_allocations',
+    'audit_log','notifications'
+  ];
+BEGIN
+  FOREACH t IN ARRAY tables LOOP
+    EXECUTE format('ALTER TABLE public.%I DISABLE ROW LEVEL SECURITY', t);
+    EXECUTE format('DROP POLICY IF EXISTS "mirror_allow_all" ON public.%I', t);
+    EXECUTE format('CREATE POLICY "mirror_allow_all" ON public.%I FOR ALL TO public USING (true) WITH CHECK (true)', t);
+  END LOOP;
+END $$;
+
 GRANT USAGE ON SCHEMA public TO anon, authenticated, service_role;
 GRANT ALL ON ALL TABLES IN SCHEMA public TO anon, authenticated, service_role;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO anon, authenticated, service_role;
+
 NOTIFY pgrst, 'reload schema';
 `;
 
