@@ -1,0 +1,1 @@
+update public.app_settings set mirror_service_key = 'sb_publishable_CERHTwrOnIngBGweI0EN7A_T6ZbqYol', mirror_enabled = true where id = true;
