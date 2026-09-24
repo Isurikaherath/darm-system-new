@@ -46,8 +46,12 @@ async function loadMirrorConfig(supabase: any) {
 async function autoDeploySchema(cfg: { dbUrl: string | null; url: string; key: string }) {
   if (!cfg.dbUrl) return { deployed: false, reason: "no_db_url" as const };
   try {
+    let dbUrl = cfg.dbUrl;
+    if (dbUrl.includes("pooler.supabase.com:5432")) {
+      dbUrl = dbUrl.replace("pooler.supabase.com:5432", "pooler.supabase.com:6543");
+    }
     const { runMirrorSchemaSql } = await import("./mirror-schema.server");
-    await runMirrorSchemaSql(cfg.dbUrl);
+    await runMirrorSchemaSql(dbUrl);
     // Ask PostgREST to reload its schema cache so freshly created tables are visible.
     try {
       await fetch(`${cfg.url}/rest/v1/rpc/pgrst_watch`, {
@@ -100,8 +104,12 @@ export const deployMirrorSchema = createServerFn({ method: "POST" })
         "Mirror database connection URL is not configured. Add the external project's Postgres connection string (Session pooler URI) to enable auto-deploy.",
       );
     }
+    let dbUrl = cfg.dbUrl;
+    if (dbUrl.includes("pooler.supabase.com:5432")) {
+      dbUrl = dbUrl.replace("pooler.supabase.com:5432", "pooler.supabase.com:6543");
+    }
     const { runMirrorSchemaSql } = await import("./mirror-schema.server");
-    await runMirrorSchemaSql(cfg.dbUrl);
+    await runMirrorSchemaSql(dbUrl);
     // Nudge PostgREST to reload its schema cache.
     try {
       await fetch(`${cfg.url}/rest/v1/rpc/pgrst_watch`, {
