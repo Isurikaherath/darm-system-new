@@ -1,7 +1,7 @@
 -- =====================================================================
 -- DARMS External Mirror Schema
 -- Run this ONCE on your external Supabase project's SQL editor
--- (Project: vgcricibtabdyysunrtf). It creates matching tables that the
+-- (Project: ntbsexvtmxdvdphcwgfl). It creates matching tables that the
 -- Lovable Cloud primary will mirror into via the Data API.
 --
 -- No RLS is enabled here — the mirror writes with the service_role key.
