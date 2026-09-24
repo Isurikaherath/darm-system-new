@@ -51,7 +51,10 @@ async function autoDeploySchema(cfg: { dbUrl: string | null; url: string; key: s
       dbUrl = dbUrl.replace("pooler.supabase.com:5432", "pooler.supabase.com:6543");
     }
     const { runMirrorSchemaSql } = await import("./mirror-schema.server");
-    await runMirrorSchemaSql(dbUrl);
+    await Promise.race([
+      runMirrorSchemaSql(dbUrl),
+      new Promise((_, reject) => setTimeout(() => reject(new Error("Database connection timeout (5s)")), 5000)),
+    ]);
     // Ask PostgREST to reload its schema cache so freshly created tables are visible.
     try {
       await fetch(`${cfg.url}/rest/v1/rpc/pgrst_watch`, {
@@ -63,7 +66,7 @@ async function autoDeploySchema(cfg: { dbUrl: string | null; url: string; key: s
     }
     return { deployed: true as const };
   } catch (err: any) {
-    console.error("autoDeploySchema error:", err?.message || err);
+    console.warn("autoDeploySchema skipped/timed out:", err?.message || err);
     return { deployed: false, reason: "error" as const, error: err?.message || String(err) };
   }
 }

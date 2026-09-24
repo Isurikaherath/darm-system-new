@@ -236,7 +236,10 @@ function Admin() {
         await testMirrorFn();
         toast.success("Connection OK — external DB reachable");
       } else if (kind === "sync") {
-        const r: any = await resyncMirrorFn();
+        const r: any = await Promise.race([
+          resyncMirrorFn(),
+          new Promise((_, reject) => setTimeout(() => reject(new Error("Sync request timed out (45s). Try clearing the Postgres connection URL field as schema is already deployed.")), 45000)),
+        ]);
         const failed = Object.entries(r.results).filter(([, v]: any) => !v.ok);
         const prefix = r.schemaDeployed ? "Schema deployed · " : (r.schemaError ? "Schema deploy skipped/failed · " : "");
         if (failed.length) {

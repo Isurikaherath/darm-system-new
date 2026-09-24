@@ -212,13 +212,17 @@ export async function runMirrorSchemaSql(dbUrl: string): Promise<void> {
   const sql = postgres(dbUrl, {
     ssl: "require",
     max: 1,
-    idle_timeout: 5,
-    connect_timeout: 15,
+    idle_timeout: 3,
+    connect_timeout: 4,
     prepare: false,
   });
   try {
     await sql.unsafe(EXTERNAL_MIRROR_SCHEMA_SQL);
   } finally {
-    await sql.end({ timeout: 5 });
+    try {
+      await sql.end({ timeout: 2 });
+    } catch {
+      // ignore
+    }
   }
 }
