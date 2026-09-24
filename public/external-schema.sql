@@ -1,47 +1,46 @@
--- =====================================================================
--- DARMS External Mirror Schema
--- Run this ONCE on your external Supabase project's SQL editor
--- (Project: vgcricibtabdyysunrtf). It creates matching tables that the
--- Lovable Cloud primary will mirror into via the Data API.
---
--- No RLS is enabled here — the mirror writes with the service_role key.
--- No FKs to auth.users (external auth is a separate system).
--- =====================================================================
+-- DARMS backup schema: exact copy of the app database tables.
+-- Run in the backup project's SQL editor. Recreates the backup tables (existing backup rows are removed; they will be re-copied).
 
-CREATE EXTENSION IF NOT EXISTS pgcrypto;
-
-CREATE TABLE IF NOT EXISTS public.departments (
+DROP TABLE IF EXISTS public.departments CASCADE;
+CREATE TABLE public.departments (
   id uuid PRIMARY KEY,
-  name text NOT NULL,
-  theme_color text,
-  created_at timestamptz,
-  updated_at timestamptz
+  name text,
+  created_at timestamp with time zone,
+  theme_color text
 );
+ALTER TABLE public.departments DISABLE ROW LEVEL SECURITY;
 
-CREATE TABLE IF NOT EXISTS public.job_titles (
+DROP TABLE IF EXISTS public.job_titles CASCADE;
+CREATE TABLE public.job_titles (
   id uuid PRIMARY KEY,
-  name text NOT NULL,
-  created_at timestamptz
+  name text,
+  created_at timestamp with time zone
 );
+ALTER TABLE public.job_titles DISABLE ROW LEVEL SECURITY;
 
-CREATE TABLE IF NOT EXISTS public.profiles (
+DROP TABLE IF EXISTS public.profiles CASCADE;
+CREATE TABLE public.profiles (
   id uuid PRIMARY KEY,
   email text,
   full_name text,
-  is_active boolean,
   department_id uuid,
-  job_title text,
-  created_at timestamptz,
-  updated_at timestamptz
+  is_active boolean,
+  created_at timestamp with time zone,
+  updated_at timestamp with time zone,
+  job_title text
 );
+ALTER TABLE public.profiles DISABLE ROW LEVEL SECURITY;
 
-CREATE TABLE IF NOT EXISTS public.user_roles (
+DROP TABLE IF EXISTS public.user_roles CASCADE;
+CREATE TABLE public.user_roles (
   id uuid PRIMARY KEY,
   user_id uuid,
   role text
 );
+ALTER TABLE public.user_roles DISABLE ROW LEVEL SECURITY;
 
-CREATE TABLE IF NOT EXISTS public.carts (
+DROP TABLE IF EXISTS public.carts CASCADE;
+CREATE TABLE public.carts (
   id uuid PRIMARY KEY,
   cart_number text,
   department_id uuid,
@@ -49,93 +48,102 @@ CREATE TABLE IF NOT EXISTS public.carts (
   retention_days integer,
   disposal_date date,
   retrieval_type text,
-  requested_by uuid,
-  requested_at timestamptz,
-  approved_by uuid,
-  approved_at timestamptz,
-  reject_reason text,
-  notes text,
+  rejection_reason text,
   created_by uuid,
-  created_at timestamptz,
-  updated_at timestamptz
+  approved_by uuid,
+  approved_at timestamp with time zone,
+  stored_at timestamp with time zone,
+  retrieved_at timestamp with time zone,
+  disposal_alert_sent boolean,
+  storage_notified_at timestamp with time zone,
+  created_at timestamp with time zone,
+  updated_at timestamp with time zone
 );
+ALTER TABLE public.carts DISABLE ROW LEVEL SECURITY;
 
-CREATE TABLE IF NOT EXISTS public.documents (
+DROP TABLE IF EXISTS public.documents CASCADE;
+CREATE TABLE public.documents (
   id uuid PRIMARY KEY,
+  cart_id uuid,
   document_name text,
   document_number text,
-  retention_days integer,
-  retention_years integer,
-  cart_id uuid,
+  retention_period integer,
   file_number text,
   file_name text,
   department_id uuid,
   created_by uuid,
-  created_at timestamptz,
-  updated_at timestamptz
+  created_at timestamp with time zone,
+  registration_date timestamp without time zone
 );
+ALTER TABLE public.documents DISABLE ROW LEVEL SECURITY;
 
-CREATE TABLE IF NOT EXISTS public.cart_approvals (
+DROP TABLE IF EXISTS public.cart_approvals CASCADE;
+CREATE TABLE public.cart_approvals (
   id uuid PRIMARY KEY,
   cart_id uuid,
-  kind text,
+  action text,
   actor_id uuid,
-  decision text,
-  reason text,
-  created_at timestamptz
+  comments text,
+  created_at timestamp with time zone
 );
+ALTER TABLE public.cart_approvals DISABLE ROW LEVEL SECURITY;
 
-CREATE TABLE IF NOT EXISTS public.purchase_orders (
+DROP TABLE IF EXISTS public.purchase_orders CASCADE;
+CREATE TABLE public.purchase_orders (
   id uuid PRIMARY KEY,
   po_number text,
   po_type text,
-  department_id uuid,
   amount numeric,
-  box_count integer,
-  unit_price numeric,
   period_start date,
   period_end date,
   description text,
+  department_id uuid,
+  created_by uuid,
+  created_at timestamp with time zone,
   attachment_url text,
   attachment_name text,
-  created_by uuid,
-  created_at timestamptz
+  box_count integer,
+  unit_price numeric
 );
+ALTER TABLE public.purchase_orders DISABLE ROW LEVEL SECURITY;
 
-CREATE TABLE IF NOT EXISTS public.cost_allocations (
+DROP TABLE IF EXISTS public.cost_allocations CASCADE;
+CREATE TABLE public.cost_allocations (
   id uuid PRIMARY KEY,
   purchase_order_id uuid,
   department_id uuid,
   amount numeric,
   cart_count integer,
   notes text,
-  created_at timestamptz
+  created_at timestamp with time zone
 );
+ALTER TABLE public.cost_allocations DISABLE ROW LEVEL SECURITY;
 
-CREATE TABLE IF NOT EXISTS public.audit_log (
+DROP TABLE IF EXISTS public.audit_log CASCADE;
+CREATE TABLE public.audit_log (
   id uuid PRIMARY KEY,
   actor_id uuid,
   table_name text,
   record_id uuid,
   action text,
   details jsonb,
-  created_at timestamptz
+  created_at timestamp with time zone
 );
+ALTER TABLE public.audit_log DISABLE ROW LEVEL SECURITY;
 
-CREATE TABLE IF NOT EXISTS public.notifications (
+DROP TABLE IF EXISTS public.notifications CASCADE;
+CREATE TABLE public.notifications (
   id uuid PRIMARY KEY,
-  user_id uuid,
-  kind text,
-  title text,
+  type text,
+  recipient text,
+  department_id uuid,
+  subject text,
   body text,
-  data jsonb,
-  read_at timestamptz,
-  created_at timestamptz
+  payload jsonb,
+  sent_at timestamp with time zone
 );
+ALTER TABLE public.notifications DISABLE ROW LEVEL SECURITY;
 
--- Grant service_role full access (RLS off — mirror uses service_role only)
-GRANT ALL ON ALL TABLES IN SCHEMA public TO service_role;
-
--- Storage bucket for PO attachments (create manually in dashboard OR:)
--- INSERT INTO storage.buckets (id, name, public) VALUES ('po-attachments','po-attachments',false)
---   ON CONFLICT (id) DO NOTHING;
+GRANT USAGE ON SCHEMA public TO anon, authenticated, service_role;
+GRANT ALL ON ALL TABLES IN SCHEMA public TO anon, authenticated, service_role;
+NOTIFY pgrst, 'reload schema';
