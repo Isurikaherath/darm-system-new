@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { Trash2, Send, RefreshCw, Database, PlugZap } from "lucide-react";
+import { Trash2, Send, RefreshCw, Database, PlugZap, Copy, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -75,6 +75,7 @@ function Admin() {
   const [mirrorEnabled, setMirrorEnabled] = useState(false);
   const [showKey, setShowKey] = useState(false);
   const [showDbUrl, setShowDbUrl] = useState(false);
+  const [copiedSql, setCopiedSql] = useState(false);
   const [mirrorBusy, setMirrorBusy] = useState<"" | "test" | "sync" | "retry" | "deploy">("");
   const testMirrorFn = useServerFn(testMirror);
   const resyncMirrorFn = useServerFn(resyncMirror);
@@ -212,6 +213,19 @@ function Admin() {
     qc.invalidateQueries({ queryKey: ["app-settings"] });
   };
 
+  const copySchemaSql = async () => {
+    try {
+      const res = await fetch("/external-schema.sql");
+      const text = await res.text();
+      await navigator.clipboard.writeText(text);
+      setCopiedSql(true);
+      toast.success("Schema SQL copied! Paste and run it in your Supabase SQL Editor");
+      setTimeout(() => setCopiedSql(false), 3000);
+    } catch {
+      toast.error("Failed to copy SQL to clipboard");
+    }
+  };
+
   const runMirrorAction = async (kind: "test" | "sync" | "retry" | "deploy") => {
     setMirrorBusy(kind);
     try {
@@ -224,9 +238,15 @@ function Admin() {
       } else if (kind === "sync") {
         const r: any = await resyncMirrorFn();
         const failed = Object.entries(r.results).filter(([, v]: any) => !v.ok);
-        const prefix = r.schemaDeployed ? "Schema deployed · " : "";
-        if (failed.length) toast.error(`${prefix}Sync finished with ${failed.length} table(s) failing — see mirror_failures`);
-        else toast.success(`${prefix}Full resync complete`);
+        const prefix = r.schemaDeployed ? "Schema deployed · " : (r.schemaError ? "Schema deploy skipped/failed · " : "");
+        if (failed.length) {
+          const names = failed.map(([k]) => k).join(", ");
+          console.error("Mirror sync results:", r.results);
+          toast.error(`${prefix}Sync finished: ${failed.length} table(s) failed (${names})`);
+        } else {
+          toast.success(`${prefix}Full resync complete — all tables synchronized!`);
+        }
+        qc.invalidateQueries({ queryKey: ["mirror-failures"] });
       } else {
         const r: any = await retryMirrorFn();
         toast.success(`Retried ${r.attempted}, resolved ${r.resolved}`);
@@ -350,6 +370,10 @@ function Admin() {
         </label>
         <div className="flex flex-wrap gap-2 mt-4">
           <Button onClick={saveMirrorConfig}>Save mirror settings</Button>
+          <Button variant="outline" onClick={copySchemaSql}>
+            {copiedSql ? <Check className="w-4 h-4 mr-1 text-emerald-600" /> : <Copy className="w-4 h-4 mr-1" />}
+            {copiedSql ? "Copied SQL!" : "Copy schema SQL"}
+          </Button>
           <Button variant="outline" onClick={() => runMirrorAction("deploy")} disabled={!!mirrorBusy || !mirrorDbUrl}>
             <Database className="w-4 h-4 mr-1" /> {mirrorBusy === "deploy" ? "Deploying…" : "Deploy schema"}
           </Button>

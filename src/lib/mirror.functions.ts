@@ -45,18 +45,23 @@ async function loadMirrorConfig(supabase: any) {
 
 async function autoDeploySchema(cfg: { dbUrl: string | null; url: string; key: string }) {
   if (!cfg.dbUrl) return { deployed: false, reason: "no_db_url" as const };
-  const { runMirrorSchemaSql } = await import("./mirror-schema.server");
-  await runMirrorSchemaSql(cfg.dbUrl);
-  // Ask PostgREST to reload its schema cache so freshly created tables are visible.
   try {
-    await fetch(`${cfg.url}/rest/v1/rpc/pgrst_watch`, {
-      method: "POST",
-      headers: mirrorHeaders(cfg.key),
-    });
-  } catch {
-    // best effort
+    const { runMirrorSchemaSql } = await import("./mirror-schema.server");
+    await runMirrorSchemaSql(cfg.dbUrl);
+    // Ask PostgREST to reload its schema cache so freshly created tables are visible.
+    try {
+      await fetch(`${cfg.url}/rest/v1/rpc/pgrst_watch`, {
+        method: "POST",
+        headers: mirrorHeaders(cfg.key),
+      });
+    } catch {
+      // best effort
+    }
+    return { deployed: true as const };
+  } catch (err: any) {
+    console.error("autoDeploySchema error:", err?.message || err);
+    return { deployed: false, reason: "error" as const, error: err?.message || String(err) };
   }
-  return { deployed: true as const };
 }
 
 function mirrorHeaders(key: string, extra: Record<string, string> = {}) {
@@ -116,17 +121,30 @@ export const resyncMirror = createServerFn({ method: "POST" })
     await requireSuperAdmin(context.supabase, context.userId);
     const cfg = await loadMirrorConfig(context.supabase);
     const schemaResult = await autoDeploySchema(cfg);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    let reader: any = context.supabase;
+    if (process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      try {
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        reader = supabaseAdmin;
+      } catch (e) {
+        console.warn("Could not instantiate supabaseAdmin, falling back to auth client:", e);
+        reader = context.supabase;
+      }
+    }
+
     const results: Record<string, { rows: number; ok: boolean; error?: string }> = {};
+    const succeededTables: string[] = [];
 
     for (const table of MIRRORED_TABLES) {
-      const { data, error } = await supabaseAdmin.from(table).select("*");
+      const { data, error } = await reader.from(table).select("*");
       if (error) {
         results[table] = { rows: 0, ok: false, error: error.message };
         continue;
       }
       if (!data || data.length === 0) {
         results[table] = { rows: 0, ok: true };
+        succeededTables.push(table);
         continue;
       }
       // chunk to avoid huge payloads
@@ -148,11 +166,32 @@ export const resyncMirror = createServerFn({ method: "POST" })
         }
         sent += chunk.length;
       }
-      results[table] = err
-        ? { rows: sent, ok: false, error: err }
-        : { rows: sent, ok: true };
+      if (err) {
+        results[table] = { rows: sent, ok: false, error: err };
+      } else {
+        results[table] = { rows: sent, ok: true };
+        succeededTables.push(table);
+      }
     }
-    return { results, schemaDeployed: schemaResult.deployed };
+
+    // Auto-resolve mirror_failures records for tables that synchronized successfully
+    if (succeededTables.length > 0) {
+      try {
+        await context.supabase
+          .from("mirror_failures")
+          .update({ resolved_at: new Date().toISOString() })
+          .in("table_name", succeededTables)
+          .is("resolved_at", null);
+      } catch {
+        // best effort
+      }
+    }
+
+    return {
+      results,
+      schemaDeployed: schemaResult.deployed,
+      schemaError: (schemaResult as any).error,
+    };
   });
 
 // --- Retry failed rows ---
