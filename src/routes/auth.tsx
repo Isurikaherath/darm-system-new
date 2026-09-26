@@ -1,9 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Eye, EyeOff, User, Lock, ArrowRight, FolderClosed, FileText, Cloud, ShieldCheck, Mail } from "lucide-react";
+import { Eye, EyeOff, User, Lock, ArrowRight, FolderClosed, Mail } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import bgAsset from "@/assets/darms-clipart-bg.jpg.asset.json";
+import loginIllustration from "@/assets/login-illustration.png";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -41,53 +42,6 @@ function PasswordInput({
       >
         {show ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
       </button>
-    </div>
-  );
-}
-
-function BrandIllustration() {
-  return (
-    <div className="relative w-full max-w-md aspect-square">
-      {/* floating circles */}
-      <div className="absolute top-6 left-8 w-3 h-3 rounded-full bg-white/60" />
-      <div className="absolute top-20 right-10 w-2 h-2 rounded-full bg-white/50" />
-      <div className="absolute bottom-16 left-16 w-4 h-4 rounded-full bg-white/40" />
-      <div className="absolute bottom-8 right-24 w-2.5 h-2.5 rounded-full bg-white/50" />
-
-      {/* Cloud */}
-      <div className="absolute top-4 right-6 bg-white/90 rounded-2xl p-4 shadow-lg shadow-sky-900/10 backdrop-blur">
-        <Cloud className="w-10 h-10 text-sky-500" strokeWidth={1.5} />
-      </div>
-
-      {/* Big folder */}
-      <div className="absolute left-4 top-24 w-64 h-44 bg-gradient-to-br from-sky-400 to-blue-500 rounded-2xl shadow-xl shadow-blue-900/20 rotate-[-6deg] p-5 flex flex-col justify-end">
-        <div className="absolute -top-3 left-5 h-4 w-24 rounded-t-lg bg-sky-400" />
-        <div className="space-y-2">
-          <div className="h-2 w-32 bg-white/70 rounded-full" />
-          <div className="h-2 w-24 bg-white/50 rounded-full" />
-        </div>
-      </div>
-
-      {/* Document */}
-      <div className="absolute right-6 top-40 w-40 h-52 bg-white rounded-xl shadow-xl shadow-slate-900/10 p-4 rotate-[8deg]">
-        <FileText className="w-6 h-6 text-blue-500 mb-3" strokeWidth={1.5} />
-        <div className="space-y-2">
-          <div className="h-1.5 w-full bg-slate-200 rounded-full" />
-          <div className="h-1.5 w-3/4 bg-slate-200 rounded-full" />
-          <div className="h-1.5 w-5/6 bg-slate-200 rounded-full" />
-          <div className="h-1.5 w-2/3 bg-slate-200 rounded-full" />
-        </div>
-      </div>
-
-      {/* Lock */}
-      <div className="absolute bottom-6 left-10 bg-white rounded-2xl p-4 shadow-xl shadow-blue-900/10 border border-sky-100">
-        <ShieldCheck className="w-8 h-8 text-blue-600" strokeWidth={1.8} />
-      </div>
-
-      {/* Small folder */}
-      <div className="absolute bottom-14 right-10 w-20 h-14 bg-gradient-to-br from-sky-300 to-sky-400 rounded-lg shadow-lg rotate-[10deg]">
-        <div className="absolute -top-1.5 left-2 h-2 w-10 rounded-t bg-sky-300" />
-      </div>
     </div>
   );
 }
@@ -157,14 +111,22 @@ function AuthPage() {
       style={{ backgroundImage: `url(${bgAsset.url})` }}
     >
       {/* LEFT: illustration */}
-      <div className="relative hidden lg:flex flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-sky-100/80 via-blue-50/70 to-slate-100/80 backdrop-blur-sm p-12">
+      <div className="relative hidden lg:flex flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-sky-100/90 via-blue-50/80 to-slate-100/90 backdrop-blur-sm p-10">
         <div className="absolute inset-0 opacity-60 bg-[radial-gradient(circle_at_20%_20%,rgba(59,110,165,0.15),transparent_50%),radial-gradient(circle_at_80%_70%,rgba(125,211,252,0.25),transparent_55%)]" />
-        <div className="relative z-10 flex flex-col items-center gap-10">
-          <BrandIllustration />
+        <div className="relative z-10 flex flex-col items-center gap-6 w-full max-w-lg">
+          <div className="relative w-full rounded-2xl overflow-hidden shadow-2xl shadow-sky-900/15 border border-white/90 bg-white/40 backdrop-blur-sm transition-all duration-300 hover:shadow-sky-900/25 hover:scale-[1.01]">
+            <img
+              src={loginIllustration}
+              alt="DARMS - Secure, Organized, Collaborative"
+              className="w-full h-auto object-contain block"
+            />
+          </div>
           <div className="text-center">
-            <h2 className="text-2xl font-semibold text-slate-800">Your documents, beautifully organized.</h2>
-            <p className="mt-3 text-sm tracking-[0.25em] uppercase text-slate-500">
-              Secure · Organized · Collaborative
+            <h2 className="text-2xl font-semibold text-slate-800 tracking-tight">
+              Your documents, beautifully organized.
+            </h2>
+            <p className="mt-2 text-sm text-slate-500 max-w-sm mx-auto">
+              Secure document archiving, tracking, and retrieval workflow management.
             </p>
           </div>
         </div>
