@@ -287,8 +287,9 @@ function NewPOForm({
     return inventory.find((i) => i.department_id === deptId)?.total_boxes ?? 0;
   }, [deptId, inventory]);
 
-  const urgentInsufficient =
-    type === "urgent_retrieval" && deptId && boxCount > (currentInventory ?? 0);
+  // Box count must never exceed the department's stored cart/box count
+  const insufficientStock =
+    !!deptId && boxCount > 0 && boxCount > (currentInventory ?? 0);
 
   useEffect(() => {
     // Suggest a sensible default unit price per type when empty
