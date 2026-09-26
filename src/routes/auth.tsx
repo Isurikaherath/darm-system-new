@@ -3,7 +3,6 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Eye, EyeOff, User, Lock, ArrowRight, FolderClosed, Mail } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import bgAsset from "@/assets/darms-clipart-bg.jpg.asset.json";
 import loginIllustration from "@/assets/login-illustration.png";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -107,23 +106,13 @@ function AuthPage() {
 
   return (
     <div className="min-h-screen w-full grid lg:grid-cols-2 bg-white">
-      {/* LEFT: illustration panel — full-bleed background, image shown uncropped */}
-      <div className="relative hidden lg:flex items-center justify-center overflow-hidden bg-gradient-to-br from-sky-50 via-blue-50 to-slate-100">
-        {/* Full-bleed decorative background, spans the entire side edge to edge */}
-        <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-25"
-          style={{ backgroundImage: `url(${bgAsset.url})` }}
+      {/* LEFT: illustration panel — full-bleed, the image already contains the logo, tagline and background */}
+      <div className="relative hidden lg:block overflow-hidden">
+        <img
+          src={loginIllustration}
+          alt="DARMS - Secure, Organized, Collaborative — Your documents, beautifully organized."
+          className="absolute inset-0 w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_15%,rgba(59,110,165,0.14),transparent_50%),radial-gradient(circle_at_85%_85%,rgba(125,211,252,0.28),transparent_55%)]" />
-
-        {/* Illustration centered, always shown in full (object-contain = never cropped) */}
-        <div className="relative z-10 flex items-center justify-center w-full h-full p-10 xl:p-16">
-          <img
-            src={loginIllustration}
-            alt="DARMS - Secure, Organized, Collaborative"
-            className="w-full max-w-lg h-auto max-h-[80vh] object-contain drop-shadow-2xl"
-          />
-        </div>
       </div>
 
       {/* RIGHT: form */}
