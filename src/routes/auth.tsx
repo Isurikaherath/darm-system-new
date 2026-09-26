@@ -107,29 +107,22 @@ function AuthPage() {
 
   return (
     <div className="min-h-screen w-full grid lg:grid-cols-2 bg-white">
-      {/* LEFT: illustration — full-bleed, no padding/card wrapper */}
-      <div className="relative hidden lg:block overflow-hidden">
-        {/* Background image fills the entire panel, edge to edge */}
-        <img
-          src={loginIllustration}
-          alt="DARMS - Secure, Organized, Collaborative"
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-        {/* Optional background texture behind/around the image, still full-bleed */}
+      {/* LEFT: illustration panel — full-bleed background, image shown uncropped */}
+      <div className="relative hidden lg:flex items-center justify-center overflow-hidden bg-gradient-to-br from-sky-50 via-blue-50 to-slate-100">
+        {/* Full-bleed decorative background, spans the entire side edge to edge */}
         <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat mix-blend-multiply opacity-20"
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-25"
           style={{ backgroundImage: `url(${bgAsset.url})` }}
         />
-        {/* Subtle gradient so the caption text stays legible over any part of the photo */}
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-slate-900/0 to-transparent" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_15%,rgba(59,110,165,0.14),transparent_50%),radial-gradient(circle_at_85%_85%,rgba(125,211,252,0.28),transparent_55%)]" />
 
-        <div className="absolute inset-x-0 bottom-0 z-10 p-10 pb-14 text-center">
-          <h2 className="text-2xl font-semibold text-white tracking-tight drop-shadow-sm">
-            Your documents, beautifully organized.
-          </h2>
-          <p className="mt-2 text-sm text-white/80 max-w-sm mx-auto">
-            Secure document archiving, tracking, and retrieval workflow management.
-          </p>
+        {/* Illustration centered, always shown in full (object-contain = never cropped) */}
+        <div className="relative z-10 flex items-center justify-center w-full h-full p-10 xl:p-16">
+          <img
+            src={loginIllustration}
+            alt="DARMS - Secure, Organized, Collaborative"
+            className="w-full max-w-lg h-auto max-h-[80vh] object-contain drop-shadow-2xl"
+          />
         </div>
       </div>
 
