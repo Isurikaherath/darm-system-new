@@ -287,8 +287,9 @@ function NewPOForm({
     return inventory.find((i) => i.department_id === deptId)?.total_boxes ?? 0;
   }, [deptId, inventory]);
 
-  const urgentInsufficient =
-    type === "urgent_retrieval" && deptId && boxCount > (currentInventory ?? 0);
+  // Box count must never exceed the department's stored cart/box count
+  const insufficientStock =
+    !!deptId && boxCount > 0 && boxCount > (currentInventory ?? 0);
 
   useEffect(() => {
     // Suggest a sensible default unit price per type when empty
@@ -302,8 +303,8 @@ function NewPOForm({
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (urgentInsufficient) {
-      toast.error("Insufficient stock for urgent retrieval.");
+    if (insufficientStock) {
+      toast.error(`Box count exceeds the department's stored cart count (${currentInventory ?? 0} available).`);
       return;
     }
     if (!boxCount || boxCount <= 0) {
@@ -438,9 +439,9 @@ function NewPOForm({
         <Input value={`$${amount.toFixed(2)}`} disabled />
       </div>
 
-      {urgentInsufficient && (
+      {insufficientStock && (
         <p className="text-xs text-red-600">
-          ⚠ Insufficient stock for urgent retrieval ({currentInventory} available).
+          ⚠ Box count exceeds the department's stored cart count ({currentInventory} available).
         </p>
       )}
 
@@ -454,7 +455,7 @@ function NewPOForm({
         <Input type="file" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
         {file && <p className="text-xs text-slate-500 mt-1">{file.name}</p>}
       </div>
-      <Button type="submit" className="w-full" disabled={!!urgentInsufficient}>
+      <Button type="submit" className="w-full" disabled={!!insufficientStock}>
         Create PO + allocate
       </Button>
     </form>
