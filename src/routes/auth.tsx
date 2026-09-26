@@ -106,34 +106,35 @@ function AuthPage() {
   };
 
   return (
-    <div
-      className="min-h-screen w-full grid lg:grid-cols-2 bg-white bg-cover bg-center bg-no-repeat"
-      style={{ backgroundImage: `url(${bgAsset.url})` }}
-    >
-      {/* LEFT: illustration */}
-      <div className="relative hidden lg:flex flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-sky-100/90 via-blue-50/80 to-slate-100/90 backdrop-blur-sm p-10">
-        <div className="absolute inset-0 opacity-60 bg-[radial-gradient(circle_at_20%_20%,rgba(59,110,165,0.15),transparent_50%),radial-gradient(circle_at_80%_70%,rgba(125,211,252,0.25),transparent_55%)]" />
-        <div className="relative z-10 flex flex-col items-center gap-6 w-full max-w-lg">
-          <div className="relative w-full rounded-2xl overflow-hidden shadow-2xl shadow-sky-900/15 border border-white/90 bg-white/40 backdrop-blur-sm transition-all duration-300 hover:shadow-sky-900/25 hover:scale-[1.01]">
-            <img
-              src={loginIllustration}
-              alt="DARMS - Secure, Organized, Collaborative"
-              className="w-full h-auto object-contain block"
-            />
-          </div>
-          <div className="text-center">
-            <h2 className="text-2xl font-semibold text-slate-800 tracking-tight">
-              Your documents, beautifully organized.
-            </h2>
-            <p className="mt-2 text-sm text-slate-500 max-w-sm mx-auto">
-              Secure document archiving, tracking, and retrieval workflow management.
-            </p>
-          </div>
+    <div className="min-h-screen w-full grid lg:grid-cols-2 bg-white">
+      {/* LEFT: illustration — full-bleed, no padding/card wrapper */}
+      <div className="relative hidden lg:block overflow-hidden">
+        {/* Background image fills the entire panel, edge to edge */}
+        <img
+          src={loginIllustration}
+          alt="DARMS - Secure, Organized, Collaborative"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        {/* Optional background texture behind/around the image, still full-bleed */}
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat mix-blend-multiply opacity-20"
+          style={{ backgroundImage: `url(${bgAsset.url})` }}
+        />
+        {/* Subtle gradient so the caption text stays legible over any part of the photo */}
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-slate-900/0 to-transparent" />
+
+        <div className="absolute inset-x-0 bottom-0 z-10 p-10 pb-14 text-center">
+          <h2 className="text-2xl font-semibold text-white tracking-tight drop-shadow-sm">
+            Your documents, beautifully organized.
+          </h2>
+          <p className="mt-2 text-sm text-white/80 max-w-sm mx-auto">
+            Secure document archiving, tracking, and retrieval workflow management.
+          </p>
         </div>
       </div>
 
       {/* RIGHT: form */}
-      <div className="flex items-center justify-center px-6 py-10 sm:px-12 bg-white/90 backdrop-blur-md">
+      <div className="flex items-center justify-center px-6 py-10 sm:px-12 bg-white">
         <div className="w-full max-w-md">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-sky-50 border border-sky-100 text-sky-700 text-xs font-medium mb-8">
             <FolderClosed className="w-3.5 h-3.5" />
