@@ -17,7 +17,6 @@ function fmtCartRows(carts: any[]) {
       <td style="padding:6px 10px;border:1px solid #e2e8f0;">${c.cart_number}</td>
       <td style="padding:6px 10px;border:1px solid #e2e8f0;">${c.retention_days ?? "—"}d</td>
       <td style="padding:6px 10px;border:1px solid #e2e8f0;">${c.disposal_date ?? "—"}</td>
-      <td style="padding:6px 10px;border:1px solid #e2e8f0;">${(c.documents ?? []).length}</td>
     </tr>`).join("");
 }
 
