@@ -26,7 +26,6 @@ export async function sendRetrievalApprovalEmail(cartId: string) {
   if (!providerEmail) return { skipped: true, reason: "provider_email_not_set" as const };
 
   const c: any = cart;
-  const docs = c.documents ?? [];
   const isUrgent = c.retrieval_type === "urgent";
   const headerColor = isUrgent ? "#b91c1c" : "#1d4ed8";
   const headerLabel = isUrgent ? "URGENT Retrieval" : "Retrieval Approved";
