@@ -9,72 +9,42 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
-import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
-import { Route as AuthenticatedApprovalsRouteImport } from './routes/_authenticated/approvals'
-import { Route as AuthenticatedCostsRouteImport } from './routes/_authenticated/costs'
-import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
-import { Route as AuthenticatedDisposalRouteImport } from './routes/_authenticated/disposal'
-import { Route as AuthenticatedDocumentsRouteImport } from './routes/_authenticated/documents'
-import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
-import { Route as AuthenticatedRetrievalsRouteImport } from './routes/_authenticated/retrievals'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedSearchRouteImport } from './routes/_authenticated/search'
+import { Route as AuthenticatedRetrievalsRouteImport } from './routes/_authenticated/retrievals'
+import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
+import { Route as AuthenticatedDocumentsRouteImport } from './routes/_authenticated/documents'
+import { Route as AuthenticatedDisposalRouteImport } from './routes/_authenticated/disposal'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedCostsRouteImport } from './routes/_authenticated/costs'
+import { Route as AuthenticatedApprovalsRouteImport } from './routes/_authenticated/approvals'
+import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedCartsIndexRouteImport } from './routes/_authenticated/carts.index'
-import { Route as AuthenticatedCartsCartIdRouteImport } from './routes/_authenticated/carts.$cartId'
 import { Route as AuthenticatedCartsNewRouteImport } from './routes/_authenticated/carts.new'
-import { Route as ApiPublicHooksDisposalAlertsRouteImport } from './routes/api/public/hooks/disposal-alerts'
-import { Route as ApiPublicHooksStorageNotificationRouteImport } from './routes/api/public/hooks/storage-notification'
+import { Route as AuthenticatedCartsCartIdRouteImport } from './routes/_authenticated/carts.$cartId'
 import { Route as ApiPublicHooksUrgentRetrievalRouteImport } from './routes/api/public/hooks/urgent-retrieval'
+import { Route as ApiPublicHooksStorageNotificationRouteImport } from './routes/api/public/hooks/storage-notification'
+import { Route as ApiPublicHooksDisposalAlertsRouteImport } from './routes/api/public/hooks/disposal-alerts'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthRoute = AuthRouteImport.update({
-  id: '/auth',
-  path: '/auth',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedApprovalsRoute = AuthenticatedApprovalsRouteImport.update({
-  id: '/approvals',
-  path: '/approvals',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedCostsRoute = AuthenticatedCostsRouteImport.update({
-  id: '/costs',
-  path: '/costs',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedDisposalRoute = AuthenticatedDisposalRouteImport.update({
-  id: '/disposal',
-  path: '/disposal',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedDocumentsRoute = AuthenticatedDocumentsRouteImport.update({
-  id: '/documents',
-  path: '/documents',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
+const AuthenticatedSearchRoute = AuthenticatedSearchRouteImport.update({
+  id: '/search',
+  path: '/search',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedRetrievalsRoute = AuthenticatedRetrievalsRouteImport.update({
@@ -82,14 +52,49 @@ const AuthenticatedRetrievalsRoute = AuthenticatedRetrievalsRouteImport.update({
   path: '/retrievals',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedSearchRoute = AuthenticatedSearchRouteImport.update({
-  id: '/search',
-  path: '/search',
+const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedDocumentsRoute = AuthenticatedDocumentsRouteImport.update({
+  id: '/documents',
+  path: '/documents',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedDisposalRoute = AuthenticatedDisposalRouteImport.update({
+  id: '/disposal',
+  path: '/disposal',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedCostsRoute = AuthenticatedCostsRouteImport.update({
+  id: '/costs',
+  path: '/costs',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedApprovalsRoute = AuthenticatedApprovalsRouteImport.update({
+  id: '/approvals',
+  path: '/approvals',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedCartsIndexRoute = AuthenticatedCartsIndexRouteImport.update({
   id: '/carts/',
   path: '/carts/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedCartsNewRoute = AuthenticatedCartsNewRouteImport.update({
+  id: '/carts/new',
+  path: '/carts/new',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedCartsCartIdRoute =
@@ -98,15 +103,10 @@ const AuthenticatedCartsCartIdRoute =
     path: '/carts/$cartId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedCartsNewRoute = AuthenticatedCartsNewRouteImport.update({
-  id: '/carts/new',
-  path: '/carts/new',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const ApiPublicHooksDisposalAlertsRoute =
-  ApiPublicHooksDisposalAlertsRouteImport.update({
-    id: '/api/public/hooks/disposal-alerts',
-    path: '/api/public/hooks/disposal-alerts',
+const ApiPublicHooksUrgentRetrievalRoute =
+  ApiPublicHooksUrgentRetrievalRouteImport.update({
+    id: '/api/public/hooks/urgent-retrieval',
+    path: '/api/public/hooks/urgent-retrieval',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiPublicHooksStorageNotificationRoute =
@@ -115,10 +115,10 @@ const ApiPublicHooksStorageNotificationRoute =
     path: '/api/public/hooks/storage-notification',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiPublicHooksUrgentRetrievalRoute =
-  ApiPublicHooksUrgentRetrievalRouteImport.update({
-    id: '/api/public/hooks/urgent-retrieval',
-    path: '/api/public/hooks/urgent-retrieval',
+const ApiPublicHooksDisposalAlertsRoute =
+  ApiPublicHooksDisposalAlertsRouteImport.update({
+    id: '/api/public/hooks/disposal-alerts',
+    path: '/api/public/hooks/disposal-alerts',
     getParentRoute: () => rootRouteImport,
   } as any)
 
@@ -253,11 +253,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -267,60 +267,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/admin': {
-      id: '/_authenticated/admin'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AuthenticatedAdminRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/approvals': {
-      id: '/_authenticated/approvals'
-      path: '/approvals'
-      fullPath: '/approvals'
-      preLoaderRoute: typeof AuthenticatedApprovalsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/costs': {
-      id: '/_authenticated/costs'
-      path: '/costs'
-      fullPath: '/costs'
-      preLoaderRoute: typeof AuthenticatedCostsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/dashboard': {
-      id: '/_authenticated/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/disposal': {
-      id: '/_authenticated/disposal'
-      path: '/disposal'
-      fullPath: '/disposal'
-      preLoaderRoute: typeof AuthenticatedDisposalRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/documents': {
-      id: '/_authenticated/documents'
-      path: '/documents'
-      fullPath: '/documents'
-      preLoaderRoute: typeof AuthenticatedDocumentsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/profile': {
-      id: '/_authenticated/profile'
-      path: '/profile'
-      fullPath: '/profile'
-      preLoaderRoute: typeof AuthenticatedProfileRouteImport
+    '/_authenticated/search': {
+      id: '/_authenticated/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof AuthenticatedSearchRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/retrievals': {
@@ -330,11 +288,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRetrievalsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/search': {
-      id: '/_authenticated/search'
-      path: '/search'
-      fullPath: '/search'
-      preLoaderRoute: typeof AuthenticatedSearchRouteImport
+    '/_authenticated/profile': {
+      id: '/_authenticated/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof AuthenticatedProfileRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/documents': {
+      id: '/_authenticated/documents'
+      path: '/documents'
+      fullPath: '/documents'
+      preLoaderRoute: typeof AuthenticatedDocumentsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/disposal': {
+      id: '/_authenticated/disposal'
+      path: '/disposal'
+      fullPath: '/disposal'
+      preLoaderRoute: typeof AuthenticatedDisposalRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/costs': {
+      id: '/_authenticated/costs'
+      path: '/costs'
+      fullPath: '/costs'
+      preLoaderRoute: typeof AuthenticatedCostsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/approvals': {
+      id: '/_authenticated/approvals'
+      path: '/approvals'
+      fullPath: '/approvals'
+      preLoaderRoute: typeof AuthenticatedApprovalsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/carts/': {
@@ -344,13 +344,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCartsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/carts/$cartId': {
-      id: '/_authenticated/carts/$cartId'
-      path: '/carts/$cartId'
-      fullPath: '/carts/$cartId'
-      preLoaderRoute: typeof AuthenticatedCartsCartIdRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/carts/new': {
       id: '/_authenticated/carts/new'
       path: '/carts/new'
@@ -358,11 +351,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCartsNewRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/api/public/hooks/disposal-alerts': {
-      id: '/api/public/hooks/disposal-alerts'
-      path: '/api/public/hooks/disposal-alerts'
-      fullPath: '/api/public/hooks/disposal-alerts'
-      preLoaderRoute: typeof ApiPublicHooksDisposalAlertsRouteImport
+    '/_authenticated/carts/$cartId': {
+      id: '/_authenticated/carts/$cartId'
+      path: '/carts/$cartId'
+      fullPath: '/carts/$cartId'
+      preLoaderRoute: typeof AuthenticatedCartsCartIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/api/public/hooks/urgent-retrieval': {
+      id: '/api/public/hooks/urgent-retrieval'
+      path: '/api/public/hooks/urgent-retrieval'
+      fullPath: '/api/public/hooks/urgent-retrieval'
+      preLoaderRoute: typeof ApiPublicHooksUrgentRetrievalRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/hooks/storage-notification': {
@@ -372,11 +372,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksStorageNotificationRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/hooks/urgent-retrieval': {
-      id: '/api/public/hooks/urgent-retrieval'
-      path: '/api/public/hooks/urgent-retrieval'
-      fullPath: '/api/public/hooks/urgent-retrieval'
-      preLoaderRoute: typeof ApiPublicHooksUrgentRetrievalRouteImport
+    '/api/public/hooks/disposal-alerts': {
+      id: '/api/public/hooks/disposal-alerts'
+      path: '/api/public/hooks/disposal-alerts'
+      fullPath: '/api/public/hooks/disposal-alerts'
+      preLoaderRoute: typeof ApiPublicHooksDisposalAlertsRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
