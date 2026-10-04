@@ -69,13 +69,10 @@ export async function sendRetrievalApprovalEmail(cartId: string) {
         <tr><td style="padding:2px 8px;color:#475569;">Cart #</td><td style="padding:2px 8px;"><strong>${esc(c.cart_number)}</strong></td></tr>
         <tr><td style="padding:2px 8px;color:#475569;">Department</td><td style="padding:2px 8px;">${esc(c.departments?.name)}</td></tr>
         <tr><td style="padding:2px 8px;color:#475569;">Priority</td><td style="padding:2px 8px;">${esc(c.retrieval_type ?? "normal")}</td></tr>
-        <tr><td style="padding:2px 8px;color:#475569;">Documents</td><td style="padding:2px 8px;">${docs.length}</td></tr>
         <tr><td style="padding:2px 8px;color:#475569;">Approved</td><td style="padding:2px 8px;">${esc(new Date(c.approved_at ?? c.updated_at).toLocaleString())}</td></tr>
         <tr><td style="padding:2px 8px;color:#475569;">Retention (days)</td><td style="padding:2px 8px;">${esc(c.retention_days)}</td></tr>
         <tr><td style="padding:2px 8px;color:#475569;">Disposal date</td><td style="padding:2px 8px;">${esc(c.disposal_date)}</td></tr>
       </table>
-      <h2 style="font-family:Arial,sans-serif;font-size:15px;margin:16px 0 4px;">Documents</h2>
-      ${renderDocsTable(docs)}
     </div>`;
 
   const subject = `${isUrgent ? "URGENT" : "Normal"} Retrieval — ${c.cart_number}`;

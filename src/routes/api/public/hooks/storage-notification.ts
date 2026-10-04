@@ -39,18 +39,8 @@ function renderSection(
         <th style="padding:6px 10px;border:1px solid #e2e8f0;background:#f1f5f9;text-align:left;">Cart #</th>
         <th style="padding:6px 10px;border:1px solid #e2e8f0;background:#f1f5f9;text-align:left;">Retention</th>
         <th style="padding:6px 10px;border:1px solid #e2e8f0;background:#f1f5f9;text-align:left;">Disposal</th>
-        <th style="padding:6px 10px;border:1px solid #e2e8f0;background:#f1f5f9;text-align:left;">Docs</th>
       </tr></thead>
       <tbody>${fmtCartRows(g.carts)}</tbody></table>`;
-    for (const c of g.carts) {
-      const docs = c.documents ?? [];
-      if (!docs.length) continue;
-      html += `<div style="margin:6px 0 12px;font-family:Arial,sans-serif;font-size:12px;color:#475569;">
-        <strong>${c.cart_number} — documents:</strong>
-        <ul style="margin:4px 0 0 20px;padding:0;">
-          ${docs.map((d: any) => `<li>${d.document_number} — ${d.document_name}${d.file_name ? ` (${d.file_name})` : ""}</li>`).join("")}
-        </ul></div>`;
-    }
   }
   return html;
 }
