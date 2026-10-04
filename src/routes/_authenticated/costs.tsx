@@ -246,7 +246,7 @@ function Costs() {
                     <td className="px-4 py-2">{a.purchase_orders?.po_type}</td>
                     <td className="px-4 py-2">{a.departments?.name}</td>
                     <td className="px-4 py-2">{a.cart_count ?? "—"}</td>
-                    <td className="px-4 py-2 font-medium">${Number(a.amount).toFixed(2)}</td>
+                    <td className="px-4 py-2 font-medium">{Number(a.amount).toFixed(2)}</td>
                   </tr>
                 )) : <tr><td colSpan={5} className="px-4 py-6 text-center text-slate-400">No allocations yet.</td></tr>}
               </tbody>
@@ -343,12 +343,12 @@ function NewPOForm({
       if (type === "storage" && po.department_id) {
         await supabase.from("cost_allocations").insert({
           purchase_order_id: po.id, department_id: po.department_id, amount,
-          cart_count: boxCount, notes: `Storage: ${boxCount} boxes × $${unitPrice}`,
+          cart_count: boxCount, notes: `Storage: ${boxCount} boxes × ${unitPrice}`,
         });
       } else if (type === "urgent_retrieval" && po.department_id) {
         await supabase.from("cost_allocations").insert({
           purchase_order_id: po.id, department_id: po.department_id, amount,
-          cart_count: boxCount, notes: `Urgent: ${boxCount} boxes × $${unitPrice}`,
+          cart_count: boxCount, notes: `Urgent: ${boxCount} boxes × ${unitPrice}`,
         });
       } else if (type === "transport") {
         // Pro-rate transport across departments by inventory share
@@ -424,7 +424,7 @@ function NewPOForm({
           />
         </div>
         <div>
-          <Label>Unit Price ($/box)</Label>
+          <Label>Unit Price (per box)</Label>
           <Input
             type="number" step="0.01" min={0}
             value={unitPrice || ""}
@@ -436,7 +436,7 @@ function NewPOForm({
 
       <div>
         <Label>Amount (auto-calculated)</Label>
-        <Input value={`$${amount.toFixed(2)}`} disabled />
+        <Input value={amount.toFixed(2)} disabled />
       </div>
 
       {insufficientStock && (

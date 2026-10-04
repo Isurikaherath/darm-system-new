@@ -383,7 +383,7 @@ function Dashboard() {
               ) : (
                 <ResponsiveContainer>
                   <PieChart>
-                    <Pie data={costData} dataKey="value" nameKey="name" outerRadius={80} label={(e: any) => `$${Number(e.value).toFixed(0)}`}>
+                    <Pie data={costData} dataKey="value" nameKey="name" outerRadius={80} label={(e: any) => `${Number(e.value).toFixed(0)}`}>
                       {costData.map((_, i) => (
                         <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
                       ))}

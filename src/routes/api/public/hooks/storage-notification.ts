@@ -17,7 +17,6 @@ function fmtCartRows(carts: any[]) {
       <td style="padding:6px 10px;border:1px solid #e2e8f0;">${c.cart_number}</td>
       <td style="padding:6px 10px;border:1px solid #e2e8f0;">${c.retention_days ?? "—"}d</td>
       <td style="padding:6px 10px;border:1px solid #e2e8f0;">${c.disposal_date ?? "—"}</td>
-      <td style="padding:6px 10px;border:1px solid #e2e8f0;">${(c.documents ?? []).length}</td>
     </tr>`).join("");
 }
 
@@ -39,18 +38,8 @@ function renderSection(
         <th style="padding:6px 10px;border:1px solid #e2e8f0;background:#f1f5f9;text-align:left;">Cart #</th>
         <th style="padding:6px 10px;border:1px solid #e2e8f0;background:#f1f5f9;text-align:left;">Retention</th>
         <th style="padding:6px 10px;border:1px solid #e2e8f0;background:#f1f5f9;text-align:left;">Disposal</th>
-        <th style="padding:6px 10px;border:1px solid #e2e8f0;background:#f1f5f9;text-align:left;">Docs</th>
       </tr></thead>
       <tbody>${fmtCartRows(g.carts)}</tbody></table>`;
-    for (const c of g.carts) {
-      const docs = c.documents ?? [];
-      if (!docs.length) continue;
-      html += `<div style="margin:6px 0 12px;font-family:Arial,sans-serif;font-size:12px;color:#475569;">
-        <strong>${c.cart_number} — documents:</strong>
-        <ul style="margin:4px 0 0 20px;padding:0;">
-          ${docs.map((d: any) => `<li>${d.document_number} — ${d.document_name}${d.file_name ? ` (${d.file_name})` : ""}</li>`).join("")}
-        </ul></div>`;
-    }
   }
   return html;
 }
@@ -73,14 +62,14 @@ export const Route = createFileRoute("/api/public/hooks/storage-notification")({
         // Approved carts (storage pickup) since last send
         const { data: approved } = await supabaseAdmin
           .from("carts")
-          .select("id, cart_number, department_id, retention_days, disposal_date, approved_at, updated_at, departments(name), documents(id,document_name,document_number,file_name)")
+          .select("id, cart_number, department_id, retention_days, disposal_date, approved_at, updated_at, departments(name)")
           .eq("status", "approved")
           .gte("updated_at", since);
 
         // Normal retrieval-approved carts since last send (exclude urgent — those go instantly)
         const { data: retrieved } = await supabaseAdmin
           .from("carts")
-          .select("id, cart_number, department_id, retention_days, disposal_date, retrieval_type, updated_at, departments(name), documents(id,document_name,document_number,file_name)")
+          .select("id, cart_number, department_id, retention_days, disposal_date, retrieval_type, updated_at, departments(name)")
           .eq("status", "retrieval_approved")
           .eq("retrieval_type", "normal")
           .gte("updated_at", since);
