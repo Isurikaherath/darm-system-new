@@ -62,14 +62,14 @@ export const Route = createFileRoute("/api/public/hooks/storage-notification")({
         // Approved carts (storage pickup) since last send
         const { data: approved } = await supabaseAdmin
           .from("carts")
-          .select("id, cart_number, department_id, retention_days, disposal_date, approved_at, updated_at, departments(name), documents(id,document_name,document_number,file_name)")
+          .select("id, cart_number, department_id, retention_days, disposal_date, approved_at, updated_at, departments(name)")
           .eq("status", "approved")
           .gte("updated_at", since);
 
         // Normal retrieval-approved carts since last send (exclude urgent — those go instantly)
         const { data: retrieved } = await supabaseAdmin
           .from("carts")
-          .select("id, cart_number, department_id, retention_days, disposal_date, retrieval_type, updated_at, departments(name), documents(id,document_name,document_number,file_name)")
+          .select("id, cart_number, department_id, retention_days, disposal_date, retrieval_type, updated_at, departments(name)")
           .eq("status", "retrieval_approved")
           .eq("retrieval_type", "normal")
           .gte("updated_at", since);

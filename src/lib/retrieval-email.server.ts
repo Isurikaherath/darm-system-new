@@ -9,7 +9,7 @@ export async function sendRetrievalApprovalEmail(cartId: string) {
 
   const { data: cart, error } = await supabaseAdmin
     .from("carts")
-    .select("id, cart_number, department_id, retention_days, disposal_date, approved_at, updated_at, retrieval_type, status, departments(name), documents(id,document_name,document_number,file_name,file_number,retention_period)")
+    .select("id, cart_number, department_id, retention_days, disposal_date, approved_at, updated_at, retrieval_type, status, departments(name)")
     .eq("id", cartId)
     .maybeSingle();
   if (error || !cart) throw new Error(error?.message ?? "Cart not found");
